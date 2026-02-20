@@ -1,0 +1,83 @@
+
+        /* Smooth Scroll Behavior */
+        html { scroll-behavior: smooth; }
+
+        html, body {
+            margin: 0; padding: 0; width: 100%;
+            overscroll-behavior: none; 
+            -webkit-overflow-scrolling: auto;
+        }
+
+        *, *::before, *::after {
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: default;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        a, button, .cursor-pointer { cursor: pointer; }
+
+        .no-scroll { overflow: hidden !important; touch-action: none; }
+
+        /* Underline Animation */
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: ''; position: absolute; width: 100%; height: 2px;
+            bottom: -4px; left: 0; background-color: #1A43BF;
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-link:hover::after { transform: scaleX(1); }
+
+        #mobile-menu {
+            position: fixed; top: 60px; left: 0; width: 100%;
+            background: white; max-height: 0; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0; z-index: 100; border-bottom: 1px solid #e2e8f0;
+        }
+        #mobile-menu.open { max-height: 100vh; opacity: 1; }
+
+/* The Animation Track */
+.marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 110px; /* Increased gap to keep logos distinct at larger sizes */
+    padding-left: 110px; 
+    animation: marquee 50s linear infinite;
+    will-change: transform;
+}
+
+/* Hover protection: Pausing ensures the cursor stays on the logo */
+.marquee-mask:hover .marquee-track {
+    animation-play-state: paused;
+}
+
+/* Logo Styling */
+.marquee-logo {
+    height: 64px; /* Larger logo size */
+    width: auto;
+    flex-shrink: 0;
+    filter: grayscale(100%) contrast(0.7) opacity(0.5);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    pointer-events: auto;
+    /* Invisible vertical padding to make hover easier to trigger */
+    padding: 8px 0; 
+}
+
+.marquee-logo:hover {
+    filter: grayscale(0%) contrast(1) opacity(1);
+    transform: scale(1.1); /* Subtle scale-up */
+}
+
+/* Edge Fade Effect */
+.marquee-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+

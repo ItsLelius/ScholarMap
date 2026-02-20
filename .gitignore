@@ -1,0 +1,23 @@
+# Dependency directories
+# This is the most important one. These are huge and will be 
+# re-installed by the hosting provider during deployment.
+node_modules/
+
+# Local build outputs
+# If you are using Tailwind CLI, output.css is generated from input.css.
+# Some prefer to ignore it, but for simple static deployments, 
+# you might want to keep it if you aren't building on the server.
+# dist/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
