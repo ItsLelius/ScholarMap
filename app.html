@@ -1,12 +1,170 @@
-<!DOCTYPE html>
-<html lang="en">
+ <!DOCTYPE html>
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="./css/output.css" rel="stylesheet">
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScholarMap | Dashboard</title>
     
+    <link rel="icon" type="image/png" href="./assets/ScholarMapTabIcon.png">
+    <link rel="stylesheet" href="./css/output.css">
+    <link rel="stylesheet" href="./css/customApp.css">
+    <link rel="stylesheet" href="./css/customIndex.css">
+</head>
+<body class="bg-slate-50 font-sans antialiased h-full flex flex-col">
+
+    <div class="fixed inset-0 pointer-events-none -z-10 bg-slate-50">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808018_0.5px,transparent_0.5px),linear-gradient(to_bottom,#80808018_.5px,transparent_0.1px)] bg-[size:40px_40px]"></div>
+    </div>
+
+    <header class="sticky top-0 z-[110] w-full bg-white/95 backdrop-blur-sm shadow-sm px-6 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 min-w-[150px] transition-all hover:opacity-70 active:scale-95">
+                <img src="./assets/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto">
+                <span class="text-xl font-black tracking-tight text-black">Scholar<span style="color: #1A43BF;">Map</span></span>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-8 font-medium text-slate-600">
+                <a href="index.html#home" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">Home</a>
+                <a href="index.html#how-it-works" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">Explore</a>
+                <a href="index.html#about" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">About</a>
+            </nav>
+
+            <div class="hidden md:block min-w-[150px]"></div>
+
+            <button id="menu-btn" class="md:hidden flex flex-col space-y-1.5 p-2 focus:outline-none">
+                <span id="top-line" class="w-6 h-0.5 bg-black transition-transform duration-300"></span>
+                <span id="mid-line" class="w-6 h-0.5 bg-black transition-opacity duration-300"></span>
+                <span id="bot-line" class="w-6 h-0.5 bg-black transition-transform duration-300"></span>
+            </button>
+        </div>
+    </header>
+
+    <main id="app-main" class="flex-1 overflow-y-auto page-fade-in px-6">
+        <div class="max-w-7xl mx-auto py-12">
+            <header class="mb-12">
+                <div class="inline-block px-3 py-1 mb-4 rounded-lg bg-blue-50 text-[#1A43BF] text-xs font-bold uppercase tracking-widest cursor-default">
+                    Scholar Console v1.0
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-black mb-3 tracking-tight">
+                    Welcome back, <span style="color: #1A43BF;">Scholar!</span>
+                </h1>
+                <p class="text-lg text-slate-500 max-w-2xl leading-relaxed">
+                    Your academic journey is mapped and ready.
+                </p>
+            </header>
+
+            <div class="w-full h-auto pb-32">
+                </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[120] px-4 w-full max-w-fit">
+        <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl flex items-center gap-1 md:gap-2">
+            
+            <button title="Nationwide View" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5v.5m-6 3h6m-3-3v3m-3.055-15.065A9 9 0 1020.945 13H18.945" />
+                </svg>
+            </button>
+
+            <div class="w-px h-6 bg-white/10 mx-1"></div>
+
+            <button id="filter-trigger" title="Filter Location" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+            </button>
+
+            <button title="Search & Reset" class="flex items-center gap-2 px-4 py-2.5 bg-[#1A43BF] text-white rounded-xl hover:brightness-110 transition-all active:scale-95 font-bold text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Search</span>
+            </button>
+
+            <div class="w-px h-6 bg-white/10 mx-1"></div>
+
+            <button title="Saved Scholarships" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-500 rounded-full"></span>
+            </button>
+        </div>
+    </div>
+
+    <div id="filter-sidebar" class="fixed inset-y-0 right-0 w-80 md:w-96 bg-white shadow-2xl z-[200] transform translate-x-full transition-transform duration-500 ease-in-out p-8">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-2xl font-black text-black">Location</h2>
+            <button id="close-filter" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Province</label>
+                <input type="text" id="prov-input" placeholder="Enter Province..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">City / Municipality</label>
+                <input type="text" id="city-input" placeholder="Enter City..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Barangay</label>
+                <input type="text" id="brgy-input" placeholder="Enter Barangay..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
+            </div>
+            
+            <div class="flex gap-3 mt-4">
+                <button id="clear-filters" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Clear</button>
+                <button class="flex-[2] py-4 bg-[#1A43BF] text-white font-bold rounded-2xl shadow-lg shadow-blue-900/20 hover:brightness-110 transition-all">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[150] hidden opacity-0 transition-opacity duration-500"></div>
+
+    <script src="./js/navbar.js"></script>
+    <script>
+        // Page Entrance Animation
+        window.addEventListener('load', () => {
+            document.getElementById('app-main').classList.add('active');
+        });
+
+        // Sidebar Elements
+        const filterTrigger = document.getElementById('filter-trigger');
+        const filterSidebar = document.getElementById('filter-sidebar');
+        const closeFilter = document.getElementById('close-filter');
+        const overlay = document.getElementById('sidebar-overlay');
+        const clearBtn = document.getElementById('clear-filters');
+
+        function toggleSidebar() {
+            const isOpen = filterSidebar.classList.contains('open');
+            if (!isOpen) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    filterSidebar.classList.add('open');
+                    overlay.classList.add('show');
+                }, 10);
+            } else {
+                filterSidebar.classList.remove('open');
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.classList.add('hidden'), 500);
+            }
+        }
+
+        filterTrigger.addEventListener('click', toggleSidebar);
+        closeFilter.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // Clear Inputs
+        clearBtn.addEventListener('click', () => {
+            ['prov-input', 'city-input', 'brgy-input'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+        });
+    </script>
 </body>
 </html>

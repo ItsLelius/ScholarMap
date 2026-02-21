@@ -1,0 +1,82 @@
+/* --- MERGED APP CORE STYLES --- */
+
+/* 1. Layout & Scroll Lock */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent body-level bounce */
+    overscroll-behavior: none; /* Disable elastic pull-to-refresh */
+    background-color: #f8fafc; /* slate-50 */
+}
+
+/* 2. Main Scrollable Area */
+main {
+    height: calc(100vh - 64px); /* Header offset */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Global Selection Lock: Prevents the "typing" cursor and blue highlighting */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 3. Interaction & Cursor Logic */
+button, 
+a, 
+.nav-link, 
+.cursor-pointer,
+img {
+    cursor: pointer;
+    -webkit-user-drag: none; /* Prevents "ghosting" images when clicking */
+    -webkit-tap-highlight-color: transparent; /* Clean touch for mobile */
+}
+
+/* 4. Selectable Exceptions */
+/* Add this class to any text (like descriptions) that users NEED to copy */
+.selectable-text {
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: auto;
+}
+
+/* 5. Entrance Animation */
+.page-fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-fade-in.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 6. Professional Scrollbar */
+main::-webkit-scrollbar {
+    width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+    background: #e2e8f0; /* slate-200 */
+    border-radius: 10px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: #1A43BF;
+}
+
+#filter-sidebar.open {
+    transform: translateX(0);
+}
+
+#sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
