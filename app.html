@@ -442,7 +442,7 @@ img{-webkit-user-drag:none}
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           <span id="m-save-full-lbl">Add to Saved</span>
         </button>
-        <a class="m-apply" id="m-apply" href="#" target="_blank">Apply Now →</a>
+        <button class="m-apply" id="m-apply">Apply Now →</button>
       </div>
     </div>
   </div>
@@ -494,11 +494,24 @@ img{-webkit-user-drag:none}
 </div>
 <div class="ov" id="ov"></div>
 
+<script src="./js/scholarships.js"></script>
 <script>
-/* ═══════════════════════════════
-   DATA — add/edit scholarships here
-═══════════════════════════════ */
-const DATA = [
+/* ═══════════════════════════════════════════════════════
+   SCHOLARSHIPS DATA
+   Edit ./js/scholarships.js to add, update, or remove scholarships.
+   ─────────────────────────────────────────────────────
+   Each scholarship supports these fields:
+     id, name, org, type, level
+     img   — path to custom image, e.g. './assets/img/scholarships/sm.jpg'
+             leave '' to use emoji + bg gradient instead
+     emoji, bg
+     region, province, city
+     amount, slots, deadline
+     req   — array of requirement strings
+     desc  — description paragraph
+     applyUrl — '' uses built-in form, or paste external URL
+═══════════════════════════════════════════════════════ */
+const DATA = window.SCHOLARSHIPS || [
   {id:'ched-tulong',name:'CHED Tulong Dunong Program',org:'Commission on Higher Education',type:'Government',emoji:'🎓',bg:'linear-gradient(135deg,#dbeafe,#e0e7ff)',region:'Davao Region',province:'Davao del Sur',city:'Digos City',amount:'₱30,000/yr',slots:'500 slots',deadline:'2025-06-30',level:'College',req:['Filipino Citizen','GWA 1.75 or higher','Annual Income ≤ ₱400,000','No existing scholarship'],desc:'The CHED Tulong Dunong Program provides financial assistance to deserving but financially challenged students pursuing tertiary education. Priority is given to students from underprivileged families in underserved areas.',url:'#'},
   {id:'sm-found',name:'SM Foundation College Scholarship',org:'SM Foundation Inc.',type:'Foundation',emoji:'🏫',bg:'linear-gradient(135deg,#dcfce7,#d1fae5)',region:'Davao Region',province:'Davao del Sur',city:'Davao City',amount:'₱60,000/yr',slots:'200 slots',deadline:'2025-06-15',level:'College',req:['High School Graduate','GWA 85% or higher','Annual Income ≤ ₱200,000','Enrolled in partner school'],desc:'SM Foundation provides full college scholarships to academically deserving but financially challenged students. Scholars receive monthly stipends and school allowances, and must maintain academic standards throughout the program.',url:'#'},
   {id:'dost-sei',name:'DOST-SEI Merit Scholarship',org:'Dept. of Science and Technology',type:'Government',emoji:'⭐',bg:'linear-gradient(135deg,#fef3c7,#fde68a)',region:'Davao Region',province:'Davao del Norte',city:'Tagum City',amount:'₱40,000/yr',slots:'100 slots',deadline:'2025-02-28',level:'College',req:['Science or Tech course','NSAT Top 10%','Graduating High School','Top 10% of class'],desc:'The DOST-SEI Merit Scholarship supports students pursuing science and technology courses. Scholars receive full tuition, monthly stipend, and book allowance, and are expected to work in the Philippines for 2 years post-graduation.',url:'#'},
@@ -608,7 +621,8 @@ function buildCard(s,i){
   el.style.animationDelay=Math.min(i*.04,.35)+'s';
   el.innerHTML=`
     <div class="card-img" style="background:${s.bg}">
-      ${s.emoji}
+      ${s.img ? `<img src="${s.img}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.style.display='none'">` : ''}
+      <span style="position:relative;z-index:1">${s.emoji||'🎓'}</span>
       <span class="card-badge ${bcls}">${s.type}</span>
       <button class="card-save${sv?' saved':''}" data-id="${s.id}">
         <svg width="13" height="13" fill="${sv?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -649,9 +663,32 @@ function toggleSave(id){
 function openModal(s){
   modalId=s.id;
   const {lbl,cls}=dl(s.deadline), locs=bc(s), sv=saved.has(s.id);
-  $('m-hero').style.background=s.bg; $('m-hero').textContent=s.emoji;
+  const hero=$('m-hero');
+  hero.style.background=s.bg;
+  hero.innerHTML='';
+  if(s.img){
+    const im=document.createElement('img');
+    im.src=s.img; im.alt=s.name;
+    im.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:22px 22px 0 0';
+    im.onerror=()=>{im.remove();hero.textContent=s.emoji||'🎓';};
+    hero.appendChild(im);
+    const em=document.createElement('span');
+    em.style.cssText='position:relative;z-index:1;font-size:3.6rem';
+    em.textContent='';
+    hero.appendChild(em);
+  } else {
+    hero.textContent=s.emoji||'🎓';
+  }
   $('m-org').textContent=s.org; $('m-title').textContent=s.name; $('m-desc').textContent=s.desc;
-  $('m-apply').href=s.url;
+  // Apply Now button — opens apply.html with scholarship id, or external url
+  const applyBtn = $('m-apply');
+  applyBtn.onclick = () => {
+    if (s.applyUrl && s.applyUrl !== '#' && s.applyUrl !== '') {
+      window.open(s.applyUrl, '_blank');
+    } else {
+      window.location.href = './apply.html?id=' + s.id;
+    }
+  };
   $('m-loc').innerHTML=(locs.length?locs:[' Nationwide']).map((p,i)=>`${i>0?'<span style="color:var(--blue-md);padding:0 2px">›</span>':''}<span class="m-loc-tag">${p}</span>`).join('');
   $('m-reqs').innerHTML=s.req.map(r=>`<li>${r}</li>`).join('');
   $('m-meta').innerHTML=`
