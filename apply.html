@@ -1,237 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Apply — ScholarMap</title>
-<link rel="icon" type="image/png" href="./assets/img/ScholarMapTabIcon.png">
-<style>
-/* ── RESET + VARS ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{
-  min-height:100%;background:#f7f9ff;
-  overscroll-behavior-y:none;
-}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  color:#0f172a;-webkit-font-smoothing:antialiased;
-}
-:root{
-  --blue:#1A43BF;--blue-h:#1535a0;--blue-lt:#EEF2FF;--blue-md:#C7D2FE;
-  --green:#16a34a;--green-lt:#f0fdf4;
-  --red:#dc2626;--red-lt:#fef2f2;
-  --dark:#0f172a;--mid:#475569;--soft:#94a3b8;
-  --bg:#f7f9ff;--surface:#ffffff;--border:#e8edf5;
-}
-/* only kill tap highlight — don't touch caret or user-select */
-*{-webkit-tap-highlight-color:transparent}
-button{border:none;background:none;font-family:inherit;cursor:pointer;outline:none}
-a{text-decoration:none;color:inherit}
-input,select,textarea{font-family:inherit}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Apply — ScholarMap</title>
+  <link rel="icon" type="image/png" href="./assets/img/ScholarMapTabIcon.png">
+  <link rel="stylesheet" href="./css/output.css">
+  <style>
+    /* Dropdown animations & overrides not expressible in Tailwind utilities */
+    @keyframes dpIn { from { opacity:0; transform:translateY(-4px) } to { opacity:1; transform:none } }
+    @keyframes spin  { to { transform:rotate(360deg) } }
+    @keyframes popIn { from { transform:scale(0); opacity:0 } to { transform:scale(1); opacity:1 } }
+    @keyframes gradientShift { 0%{background-position:0% center} 100%{background-position:200% center} }
 
-/* ── NAV ── */
-.nav{background:rgba(255,255,255,.97);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
-.nav-brand{display:flex;align-items:center;gap:7px;font-size:.95rem;font-weight:900;color:var(--dark);letter-spacing:-.02em}
-.nav-brand img{height:24px;width:auto}
-.nav-brand em{font-style:normal;color:var(--blue)}
-.nav-back-btn{display:flex;align-items:center;gap:5px;font-size:.76rem;font-weight:700;color:var(--soft);padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);margin-left:auto;transition:all .15s}
-.nav-back-btn:hover{color:var(--blue);border-color:var(--blue-md);background:var(--blue-lt)}
+    .dp { position:absolute; left:0; right:0; z-index:999; background:white; border:1.5px solid #e8edf5; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,.1); overflow:hidden; display:none; flex-direction:column; max-height:220px; }
+    .dp.open { display:flex; animation:dpIn .15s ease; }
+    .dp.up   { bottom:calc(100% + 5px); top:auto; }
+    .dp.dn   { top:calc(100% + 5px); }
 
-/* ── PAGE LAYOUT ── */
-.page{max-width:680px;margin:0 auto;padding:32px 20px 80px}
+    .dp-o      { padding:9px 11px; border-radius:9px; font-size:.84rem; color:#334155; cursor:pointer; transition:background .1s,color .1s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dp-o:hover{ background:#EEF2FF; color:#1A43BF; }
+    .dp-o.sel  { background:#1A43BF; color:white; font-weight:700; }
+    .dp-o.hide { display:none; }
+    .dp-empty  { padding:14px; font-size:.77rem; color:#94a3b8; text-align:center; }
 
-/* ── SCHOLARSHIP BANNER ── */
-.s-banner{border-radius:20px;overflow:hidden;margin-bottom:28px;border:1.5px solid var(--border);background:var(--surface)}
-.s-banner-hero{height:140px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative}
-.s-banner-hero img{width:100%;height:100%;object-fit:cover}
-.s-banner-hero .hero-emoji{position:absolute;font-size:3.5rem}
-.s-banner-body{padding:18px 20px}
-.s-banner-org{font-size:.67rem;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.s-banner-name{font-size:1.1rem;font-weight:900;color:var(--dark);letter-spacing:-.02em}
-.s-banner-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.s-pill{font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:99px}
-.sp-blue{background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-md)}
-.sp-gray{background:var(--bg);color:var(--mid);border:1px solid var(--border)}
-.sp-green{background:var(--green-lt);color:var(--green);border:1px solid #86efac}
+    .dp-spin { display:none; width:13px; height:13px; border:2px solid #e2e8f0; border-top-color:#1A43BF; border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; margin-left:6px; }
+    .dw.loading .dp-spin { display:block; }
+    .dw.loading .dt      { pointer-events:none; opacity:.6; }
 
-/* ── FORM CARD ── */
-.form-card{background:var(--surface);border-radius:20px;border:1.5px solid var(--border);overflow:hidden}
-.form-section{padding:22px 24px;border-bottom:1px solid var(--border)}
-.form-section:last-child{border-bottom:none}
-.fs-title{font-size:.65rem;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;display:flex;align-items:center;gap:7px}
-.fs-title-num{width:20px;height:20px;background:var(--blue);color:white;border-radius:50%;font-size:.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .spin-btn { width:16px; height:16px; border:2.5px solid rgba(255,255,255,.4); border-top-color:white; border-radius:50%; animation:spin .6s linear infinite; display:none; }
+    .submit-btn.loading .spin-btn { display:block; }
+    .submit-btn.loading .btn-label { display:none; }
 
-/* ── FIELD ── */
-.field{margin-bottom:16px}
-.field:last-child{margin-bottom:0}
-.field-row{display:grid;gap:12px}
-.field-row.cols-2{grid-template-columns:1fr 1fr}
-@media(max-width:520px){.field-row.cols-2{grid-template-columns:1fr}}
-label{display:block;font-size:.72rem;font-weight:700;color:var(--mid);margin-bottom:5px}
-label .req{color:var(--red);margin-left:2px}
-.inp{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:.875rem;color:var(--dark);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
-.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,67,191,.08);background:white}
-.inp::placeholder{color:var(--soft)}
-.inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
-textarea.inp{resize:vertical;min-height:90px;line-height:1.6}
-.field-hint{font-size:.67rem;color:var(--soft);margin-top:4px;line-height:1.5}
-.err-msg{font-size:.67rem;color:var(--red);margin-top:4px;display:none}
-.field.has-err .err-msg{display:block}
-.field.has-err .inp{border-color:var(--red)}
+    .dt       { display:flex; align-items:center; justify-content:space-between; width:100%; padding:11px 14px; background:#f7f9ff; border:1.5px solid #e8edf5; border-radius:12px; font-size:.875rem; color:#94a3b8; cursor:pointer; transition:border-color .2s, box-shadow .2s; user-select:none; outline:none; }
+    .dt.has-val { color:#0f172a; }
+    .dt.open  { border-color:#1A43BF; box-shadow:0 0 0 3px rgba(26,67,191,.08); background:white; }
+    .dt.off   { opacity:.5; cursor:not-allowed; pointer-events:none; }
+    .dt.err   { border-color:#dc2626; }
+    .dt-txt   { flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dt-arr   { flex-shrink:0; margin-left:7px; transition:transform .2s; color:#94a3b8; }
+    .dt.open .dt-arr { transform:rotate(180deg); color:#1A43BF; }
 
-/* ── PSGC DROPDOWN (reused from app) ── */
-.dw{position:relative}
-.dt{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;font-size:.875rem;color:var(--soft);cursor:pointer;transition:border-color .2s,box-shadow .2s;user-select:none;outline:none}
-.dt.has-val{color:var(--dark)}
-.dt.open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,67,191,.08);background:white}
-.dt.off{opacity:.5;cursor:not-allowed;pointer-events:none}
-.dt.err{border-color:var(--red)}
-.dt-txt{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dt-arr{flex-shrink:0;margin-left:7px;transition:transform .2s;color:var(--soft)}
-.dt.open .dt-arr{transform:rotate(180deg);color:var(--blue)}
-.dp{position:absolute;left:0;right:0;z-index:999;background:white;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.1);overflow:hidden;display:none;flex-direction:column;max-height:220px}
-.dp.open{display:flex;animation:dpIn .15s ease}
-.dp.up{bottom:calc(100% + 5px);top:auto}
-.dp.dn{top:calc(100% + 5px)}
-@keyframes dpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.dp-sw{padding:8px 9px 6px;border-bottom:1px solid var(--border);flex-shrink:0}
-.dp-s{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:9px;font-size:.79rem;color:var(--dark);background:var(--bg);outline:none;transition:border-color .2s;font-family:inherit}
-.dp-s:focus{border-color:var(--blue);background:white}
-.dp-opts{overflow-y:auto;flex:1;padding:4px}
-.dp-o{padding:9px 11px;border-radius:9px;font-size:.84rem;color:#334155;cursor:pointer;transition:background .1s,color .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dp-o:hover{background:var(--blue-lt);color:var(--blue)}
-.dp-o.sel{background:var(--blue);color:white;font-weight:700}
-.dp-o.hide{display:none}
-.dp-empty{padding:14px;font-size:.77rem;color:var(--soft);text-align:center}
-.dp-spin{display:none;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;margin-left:6px}
-.loading .dp-spin{display:block}
-.loading .dt{pointer-events:none;opacity:.6}
-@keyframes spin{to{transform:rotate(360deg)}}
+    .field.has-err .inp  { border-color:#dc2626 !important; box-shadow:0 0 0 3px rgba(220,38,38,.08) !important; }
+    .field.has-err .err-msg { display:block !important; }
 
-/* ── SUBMIT BUTTON ── */
-.submit-row{padding:20px 24px;background:var(--surface)}
-.submit-btn{width:100%;padding:15px;background:var(--blue);color:white;font-size:.95rem;font-weight:800;border-radius:14px;box-shadow:0 4px 18px rgba(26,67,191,.3);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.01em}
-.submit-btn:hover:not(:disabled){background:var(--blue-h);transform:translateY(-1px);box-shadow:0 6px 22px rgba(26,67,191,.38)}
-.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.spin-btn{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none}
-.submit-btn.loading .spin-btn{display:block}
-.submit-btn.loading span{display:none}
-.note{font-size:.7rem;color:var(--soft);text-align:center;padding:10px 24px 0;line-height:1.6}
+    .success-icon { animation:popIn .4s cubic-bezier(.34,1.56,.64,1); }
 
-/* ── SUCCESS SCREEN ── */
-.success-screen{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;min-height:60vh}
-.success-screen.show{display:flex}
-.success-icon{width:72px;height:72px;background:var(--green-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:2rem;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.success-screen h2{font-size:1.4rem;font-weight:900;color:var(--dark);letter-spacing:-.02em;margin-bottom:8px}
-.success-screen p{font-size:.88rem;color:var(--mid);line-height:1.7;max-width:380px;margin-bottom:6px}
-.success-screen .email-note{font-size:.78rem;color:var(--soft);margin-top:4px}
-.success-screen strong{color:var(--blue)}
-.back-home-btn{margin-top:28px;display:inline-flex;align-items:center;gap:6px;font-size:.83rem;font-weight:700;color:var(--blue);background:var(--blue-lt);border:1.5px solid var(--blue-md);padding:10px 20px;border-radius:12px;transition:all .15s}
-.back-home-btn:hover{background:var(--blue);color:white;border-color:var(--blue)}
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
 
-/* ── ERROR BANNER ── */
-.err-banner{display:none;background:var(--red-lt);border:1px solid #fca5a5;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:.82rem;color:var(--red);font-weight:600}
-.err-banner.show{display:block}
-
-/* ── STEP BREADCRUMB ── */
-.steps{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
-.step{font-size:.72rem;font-weight:700;color:var(--soft)}
-.step.on{color:var(--blue)}
-.step-sep{color:var(--border)}
-</style>
+    .accent-bar { background: linear-gradient(90deg,#1A43BF,#6366f1,#1A43BF); background-size:200%; animation:gradientShift 4s linear infinite; }
+  </style>
 </head>
-<body>
+<body class="bg-[#f7f9ff] font-sans antialiased text-slate-900 min-h-screen">
 
-<!-- NAV -->
-<nav class="nav">
-  <a href="app.html" class="nav-brand">
-    <img src="./assets/img/ScholarMapLogo.png" alt="ScholarMap" onerror="this.style.display='none'">
-    <span>Scholar<em>Map</em></span>
+<!-- ── NAV ── -->
+<nav class="sticky top-0 z-50 bg-white/97 border-b border-slate-100 backdrop-blur-sm px-6 h-14 flex items-center gap-3 shadow-sm">
+  <a href="app.html" class="flex items-center gap-2 font-black text-[.95rem] tracking-tight text-slate-900">
+    <img src="./assets/img/ScholarMapLogo.png" alt="ScholarMap" class="h-6 w-auto" onerror="this.style.display='none'">
+    Scholar<span class="text-[#1A43BF]">Map</span>
   </a>
-  <a href="javascript:history.back()" class="nav-back-btn">
+  <a href="javascript:history.back()" class="ml-auto flex items-center gap-1.5 text-[.76rem] font-bold text-slate-400 px-3 py-1.5 rounded-lg border border-slate-200 hover:text-[#1A43BF] hover:border-[#C7D2FE] hover:bg-[#EEF2FF] transition-all">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     Back
   </a>
 </nav>
 
-<div class="page">
+<div class="max-w-2xl mx-auto px-5 pt-8 pb-20">
 
   <!-- BREADCRUMB -->
-  <div class="steps">
-    <span class="step on">Scholarship Details</span>
-    <span class="step-sep">›</span>
-    <span class="step on">Application Form</span>
-    <span class="step-sep">›</span>
-    <span class="step" id="step-confirm">Confirmation</span>
+  <div class="flex items-center gap-2 flex-wrap mb-6">
+    <span class="text-[.72rem] font-bold text-[#1A43BF]">Scholarship Details</span>
+    <span class="text-slate-200 text-sm">›</span>
+    <span class="text-[.72rem] font-bold text-[#1A43BF]">Application Form</span>
+    <span class="text-slate-200 text-sm">›</span>
+    <span class="text-[.72rem] font-bold text-slate-400" id="step-confirm">Confirmation</span>
   </div>
 
   <!-- ERROR BANNER -->
-  <div class="err-banner" id="err-banner">⚠️ <span id="err-text">Something went wrong. Please try again.</span></div>
+  <div class="hidden bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5 text-sm text-red-600 font-semibold" id="err-banner">
+    ⚠️ <span id="err-text">Something went wrong. Please try again.</span>
+  </div>
 
-  <!-- SCHOLARSHIP BANNER — filled by JS -->
-  <div class="s-banner" id="s-banner" style="display:none">
-    <div class="s-banner-hero" id="s-hero">
-      <span class="hero-emoji" id="s-emoji">🎓</span>
+  <!-- SCHOLARSHIP BANNER -->
+  <div class="hidden rounded-2xl overflow-hidden mb-7 border border-slate-100 bg-white shadow-sm" id="s-banner">
+    <div class="h-36 flex items-center justify-center relative text-5xl" id="s-hero">
+      <span id="s-emoji">🎓</span>
     </div>
-    <div class="s-banner-body">
-      <p class="s-banner-org" id="s-org"></p>
-      <h2 class="s-banner-name" id="s-name">Loading scholarship...</h2>
-      <div class="s-banner-pills" id="s-pills"></div>
+    <div class="px-5 py-4">
+      <p class="text-[.67rem] font-bold text-slate-400 uppercase tracking-widest mb-1" id="s-org"></p>
+      <h2 class="text-[1.1rem] font-black text-slate-900 tracking-tight" id="s-name">Loading scholarship...</h2>
+      <div class="flex flex-wrap gap-1.5 mt-2.5" id="s-pills"></div>
     </div>
   </div>
 
-  <!-- FORM + SUCCESS wrapper -->
+  <!-- FORM WRAP -->
   <div id="form-wrap">
     <form id="apply-form" novalidate>
 
-      <!-- SECTION 1 — Personal Info -->
-      <div class="form-card" style="margin-bottom:14px">
-        <div class="form-section">
-          <p class="fs-title"><span class="fs-title-num">1</span>Personal Information</p>
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-4">
 
-          <div class="field-row cols-2">
+        <!-- Accent bar -->
+        <div class="accent-bar h-1.5 w-full"></div>
+
+        <!-- SECTION 1 — Personal Info -->
+        <div class="px-6 py-6 border-b border-slate-100">
+          <p class="flex items-center gap-2 text-[.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+            <span class="w-5 h-5 bg-[#1A43BF] text-white rounded-full text-[.6rem] font-black flex items-center justify-center shrink-0">1</span>
+            Personal Information
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div class="field" id="f-fname">
-              <label>First Name <span class="req">*</span></label>
-              <input class="inp" id="fname" type="text" placeholder="Juan" autocomplete="given-name">
-              <p class="err-msg">Please enter your first name.</p>
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">First Name <span class="text-red-500">*</span></label>
+              <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="fname" type="text" placeholder="Juan" autocomplete="given-name">
+              <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please enter your first name.</p>
             </div>
             <div class="field" id="f-lname">
-              <label>Last Name <span class="req">*</span></label>
-              <input class="inp" id="lname" type="text" placeholder="Dela Cruz" autocomplete="family-name">
-              <p class="err-msg">Please enter your last name.</p>
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Last Name <span class="text-red-500">*</span></label>
+              <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="lname" type="text" placeholder="Dela Cruz" autocomplete="family-name">
+              <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please enter your last name.</p>
             </div>
           </div>
 
           <div class="field" id="f-email">
-            <label>Email Address <span class="req">*</span></label>
-            <input class="inp" id="email" type="email" placeholder="you@email.com" autocomplete="email">
-            <p class="err-msg">Please enter a valid email address.</p>
+            <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Email Address <span class="text-red-500">*</span></label>
+            <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="email" type="email" placeholder="you@email.com" autocomplete="email">
+            <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please enter a valid email address.</p>
           </div>
-
         </div>
 
         <!-- SECTION 2 — Academic Info -->
-        <div class="form-section">
-          <p class="fs-title"><span class="fs-title-num">2</span>Academic Information</p>
+        <div class="px-6 py-6 border-b border-slate-100">
+          <p class="flex items-center gap-2 text-[.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+            <span class="w-5 h-5 bg-[#1A43BF] text-white rounded-full text-[.6rem] font-black flex items-center justify-center shrink-0">2</span>
+            Academic Information
+          </p>
 
-          <div class="field" id="f-school">
-            <label>School / University <span class="req">*</span></label>
-            <input class="inp" id="school" type="text" placeholder="e.g. University of the Philippines Diliman">
-            <p class="err-msg">Please enter your school name.</p>
+          <div class="field mb-4" id="f-school">
+            <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">School / University <span class="text-red-500">*</span></label>
+            <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="school" type="text" placeholder="e.g. University of the Philippines Diliman">
+            <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please enter your school name.</p>
           </div>
 
-          <div class="field-row cols-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="field" id="f-course">
-              <label>Course / Program <span class="req">*</span></label>
-              <input class="inp" id="course" type="text" placeholder="e.g. BS Computer Science">
-              <p class="err-msg">Please enter your course.</p>
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Course / Program <span class="text-red-500">*</span></label>
+              <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="course" type="text" placeholder="e.g. BS Computer Science">
+              <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please enter your course.</p>
             </div>
             <div class="field" id="f-year">
-              <label>Year Level <span class="req">*</span></label>
-              <select class="inp" id="year">
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Year Level <span class="text-red-500">*</span></label>
+              <select class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all" id="year">
                 <option value="">Select year...</option>
                 <option>1st Year</option>
                 <option>2nd Year</option>
@@ -242,57 +162,66 @@ textarea.inp{resize:vertical;min-height:90px;line-height:1.6}
                 <option>Grade 11</option>
                 <option>Grade 12</option>
               </select>
-              <p class="err-msg">Please select your year level.</p>
+              <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please select your year level.</p>
             </div>
           </div>
         </div>
 
         <!-- SECTION 3 — Location -->
-        <div class="form-section">
-          <p class="fs-title"><span class="fs-title-num">3</span>Current Location</p>
+        <div class="px-6 py-6 border-b border-slate-100">
+          <p class="flex items-center gap-2 text-[.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+            <span class="w-5 h-5 bg-[#1A43BF] text-white rounded-full text-[.6rem] font-black flex items-center justify-center shrink-0">3</span>
+            Current Location
+          </p>
 
-          <div class="field" id="f-region">
-            <label>Region <span class="req">*</span></label>
-            <div class="dw" id="dw-region">
+          <div class="field mb-4" id="f-region">
+            <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Region <span class="text-red-500">*</span></label>
+            <div class="dw relative" id="dw-region">
               <div class="dt off" id="dt-region">
                 <span class="dt-txt">Loading regions...</span>
                 <svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                 <div class="dp-spin"></div>
               </div>
               <div class="dp dn" id="dp-region">
-                <div class="dp-sw"><input class="dp-s" type="text" placeholder="Search region..."></div>
-                <div class="dp-opts" id="dpo-region"></div>
+                <div class="p-2 border-b border-slate-100 shrink-0">
+                  <input class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[.79rem] text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:bg-white transition-colors" type="text" placeholder="Search region...">
+                </div>
+                <div class="dp-opts overflow-y-auto flex-1 p-1" id="dpo-region"></div>
               </div>
             </div>
-            <p class="err-msg" id="err-region">Please select your region.</p>
+            <p class="err-msg hidden text-[.67rem] text-red-500 mt-1" id="err-region">Please select your region.</p>
           </div>
 
-          <div class="field-row cols-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="field" id="f-province">
-              <label>Province</label>
-              <div class="dw" id="dw-province">
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Province</label>
+              <div class="dw relative" id="dw-province">
                 <div class="dt off" id="dt-province">
                   <span class="dt-txt">Select Province</span>
                   <svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                   <div class="dp-spin"></div>
                 </div>
                 <div class="dp dn" id="dp-province">
-                  <div class="dp-sw"><input class="dp-s" type="text" placeholder="Search province..."></div>
-                  <div class="dp-opts" id="dpo-province"></div>
+                  <div class="p-2 border-b border-slate-100 shrink-0">
+                    <input class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[.79rem] text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:bg-white transition-colors" type="text" placeholder="Search province...">
+                  </div>
+                  <div class="dp-opts overflow-y-auto flex-1 p-1" id="dpo-province"></div>
                 </div>
               </div>
             </div>
             <div class="field" id="f-city">
-              <label>City / Municipality</label>
-              <div class="dw" id="dw-city">
+              <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">City / Municipality</label>
+              <div class="dw relative" id="dw-city">
                 <div class="dt off" id="dt-city">
                   <span class="dt-txt">Select City</span>
                   <svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                   <div class="dp-spin"></div>
                 </div>
                 <div class="dp dn" id="dp-city">
-                  <div class="dp-sw"><input class="dp-s" type="text" placeholder="Search city..."></div>
-                  <div class="dp-opts" id="dpo-city"></div>
+                  <div class="p-2 border-b border-slate-100 shrink-0">
+                    <input class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[.79rem] text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:bg-white transition-colors" type="text" placeholder="Search city...">
+                  </div>
+                  <div class="dp-opts overflow-y-auto flex-1 p-1" id="dpo-city"></div>
                 </div>
               </div>
             </div>
@@ -300,42 +229,45 @@ textarea.inp{resize:vertical;min-height:90px;line-height:1.6}
         </div>
 
         <!-- SECTION 4 — Requirements -->
-        <div class="form-section">
-          <p class="fs-title"><span class="fs-title-num">4</span>Requirements Submission</p>
+        <div class="px-6 py-6 border-b border-slate-100">
+          <p class="flex items-center gap-2 text-[.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+            <span class="w-5 h-5 bg-[#1A43BF] text-white rounded-full text-[.6rem] font-black flex items-center justify-center shrink-0">4</span>
+            Requirements Submission
+          </p>
 
-          <div class="field" id="f-gdrive">
-            <label>Google Drive / Requirements Link <span class="req">*</span></label>
-            <input class="inp" id="gdrive" type="url" placeholder="https://drive.google.com/drive/folders/...">
-            <p class="field-hint">Upload all your requirements to Google Drive (or any cloud link) and paste the shareable link here. Make sure link access is set to <strong>Anyone with the link</strong>.</p>
-            <p class="err-msg">Please provide a valid link to your requirements.</p>
+          <div class="field mb-4" id="f-gdrive">
+            <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Google Drive / Requirements Link <span class="text-red-500">*</span></label>
+            <input class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400" id="gdrive" type="url" placeholder="https://drive.google.com/drive/folders/...">
+            <p class="text-[.67rem] text-slate-400 mt-1.5 leading-relaxed">Upload all requirements to Google Drive and paste the shareable link. Make sure access is set to <strong class="text-slate-600">Anyone with the link</strong>.</p>
+            <p class="err-msg hidden text-[.67rem] text-red-500 mt-1">Please provide a valid link to your requirements.</p>
           </div>
 
           <div class="field">
-            <label>Additional Notes <span style="color:var(--soft);font-weight:500">(optional)</span></label>
-            <textarea class="inp" id="notes" placeholder="Any additional information you'd like the scholarship committee to know..."></textarea>
+            <label class="block text-[.72rem] font-bold text-slate-500 mb-1.5">Additional Notes <span class="text-[.72rem] text-slate-400 font-medium">(optional)</span></label>
+            <textarea class="inp w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-[#f7f9ff] outline-none focus:border-[#1A43BF] focus:shadow-[0_0_0_3px_rgba(26,67,191,0.08)] focus:bg-white transition-all placeholder:text-slate-400 resize-y min-h-[90px] leading-relaxed" id="notes" placeholder="Any additional information you'd like the scholarship committee to know..."></textarea>
           </div>
         </div>
 
         <!-- SUBMIT -->
-        <div class="submit-row">
-          <button type="submit" class="submit-btn" id="submit-btn">
-            <span>Submit Application</span>
+        <div class="px-6 py-5 bg-white">
+          <button type="submit" class="submit-btn w-full py-4 bg-[#1A43BF] text-white text-[.95rem] font-extrabold rounded-2xl shadow-[0_4px_18px_rgba(26,67,191,0.3)] hover:bg-[#1535a0] hover:-translate-y-0.5 hover:shadow-[0_6px_22px_rgba(26,67,191,0.38)] transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" id="submit-btn">
+            <span class="btn-label">Submit Application</span>
             <div class="spin-btn"></div>
           </button>
-          <p class="note">By submitting, you confirm that all information provided is accurate. A confirmation email will be sent to your email address upon successful submission.</p>
+          <p class="text-[.7rem] text-slate-400 text-center pt-3 leading-relaxed">By submitting, you confirm that all information is accurate. A confirmation email will be sent upon successful submission.</p>
         </div>
-      </div>
 
+      </div>
     </form>
 
     <!-- SUCCESS SCREEN -->
-    <div class="success-screen" id="success-screen">
-      <div class="success-icon">✓</div>
-      <h2>Application Submitted!</h2>
-      <p>Your application for <strong id="success-scholarship">this scholarship</strong> has been received and is now <strong>pending review</strong>.</p>
-      <p>We'll get back to you within <strong>5–7 business days</strong>.</p>
-      <p class="email-note">📧 A confirmation email has been sent to <strong id="success-email"></strong></p>
-      <a href="app.html" class="back-home-btn">
+    <div class="hidden flex-col items-center justify-center text-center px-6 py-16 min-h-[60vh]" id="success-screen">
+      <div class="success-icon w-18 h-18 bg-green-50 rounded-full flex items-center justify-center mb-5 text-3xl" style="width:72px;height:72px">✓</div>
+      <h2 class="text-[1.4rem] font-black text-slate-900 tracking-tight mb-2">Application Submitted!</h2>
+      <p class="text-[.88rem] text-slate-500 leading-relaxed max-w-sm mb-1">Your application for <strong class="text-[#1A43BF]" id="success-scholarship">this scholarship</strong> has been received and is now <strong class="text-slate-700">pending review</strong>.</p>
+      <p class="text-[.88rem] text-slate-500 leading-relaxed max-w-sm">We'll get back to you within <strong class="text-slate-700">5–7 business days</strong>.</p>
+      <p class="text-[.78rem] text-slate-400 mt-1">📧 A confirmation email has been sent to <strong class="text-[#1A43BF]" id="success-email"></strong></p>
+      <a href="app.html" class="mt-7 inline-flex items-center gap-1.5 text-[.83rem] font-bold text-[#1A43BF] bg-[#EEF2FF] border border-[#C7D2FE] px-5 py-2.5 rounded-xl hover:bg-[#1A43BF] hover:text-white hover:border-[#1A43BF] transition-all">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to Browse
       </a>
@@ -346,34 +278,16 @@ textarea.inp{resize:vertical;min-height:90px;line-height:1.6}
 
 <!-- EmailJS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 <script>
 /* ═══════════════════════════════════════════════════════
-   EMAILJS SETUP
-   ─────────────────────────────────────────────────────
-   TO ACTIVATE EMAIL SENDING:
-   1. Go to https://www.emailjs.com/ — create a free account
-   2. Add an Email Service → connect leliuslawas@gmail.com → copy Service ID
-   3. Create an Email Template using the variables below → copy Template ID
-   4. Go to Account → copy your Public Key
-   5. Paste all three below.
-
-   TEMPLATE variables to use in EmailJS dashboard:
-     {{to_email}}         — applicant's email
-     {{to_name}}          — applicant's full name
-     {{scholarship_name}} — name of the scholarship
-     {{scholarship_org}}  — offering organization
-     {{school}}           — applicant's school
-     {{course}}           — applicant's course
-     {{year}}             — applicant's year level
-     {{location}}         — region › province › city
-     {{gdrive_link}}      — requirements link
-     {{notes}}            — additional notes
-     {{ref_number}}       — auto-generated reference number
+   EMAILJS SETUP — replace the three placeholders below
+   Template variables: {{to_email}} {{to_name}} {{scholarship_name}}
+   {{scholarship_org}} {{school}} {{course}} {{year}}
+   {{location}} {{gdrive_link}} {{notes}} {{ref_number}}
 ═══════════════════════════════════════════════════════ */
-const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // ← replace
-const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // ← replace
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // ← replace
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 
 emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
@@ -387,7 +301,7 @@ function mkDrop(key, ph) {
   const trig  = document.getElementById('dt-'+key);
   const txt   = trig.querySelector('.dt-txt');
   const panel = document.getElementById('dp-'+key);
-  const sinp  = panel.querySelector('.dp-s');
+  const sinp  = panel.querySelector('input');
   const opts  = document.getElementById('dpo-'+key);
   let isOpen=false, isOff=true, items=[], cur=null;
 
@@ -439,12 +353,10 @@ function mkDrop(key, ph) {
   return DDS[key]={key,close,populate,reset,setLoad,get val(){return cur;}};
 }
 
-/* init drops */
 const DDR=mkDrop('region','Select Region');
 const DDP=mkDrop('province','Select Province');
 const DDC=mkDrop('city','Select City / Municipality');
 
-/* cascade */
 document.getElementById('dw-region').addEventListener('lc', ({detail})=>{
   locSel.region=detail; locSel.province=null; locSel.city=null;
   DDP.reset(); DDC.reset();
@@ -479,24 +391,22 @@ async function loadPSGC() {
 }
 
 /* ── SCHOLARSHIP BANNER ── */
-const params   = new URLSearchParams(location.search);
-const scholId  = params.get('id') || '';
-let   scholData = null;
+const urlParams = new URLSearchParams(location.search);
+const scholId   = urlParams.get('id') || '';
+let   scholData  = null;
 
-// Load scholarships.js data if available, else try sessionStorage fallback
 function loadBanner() {
   const all = window.SCHOLARSHIPS || [];
   scholData = all.find(s=>s.id===scholId) || null;
-
   const banner = document.getElementById('s-banner');
   if (!scholData) { banner.style.display='none'; return; }
   banner.style.display='block';
 
-  // hero
   const hero = document.getElementById('s-hero');
   if (scholData.img) {
     const im = document.createElement('img');
     im.src = scholData.img; im.alt = scholData.name;
+    im.className = 'w-full h-full object-cover';
     im.onerror = ()=>{ im.remove(); hero.style.background=scholData.bg; };
     hero.style.background = scholData.bg;
     hero.appendChild(im);
@@ -510,13 +420,13 @@ function loadBanner() {
 
   const pills = document.getElementById('s-pills');
   const loc   = [scholData.region,scholData.province,scholData.city].filter(Boolean).join(' › ') || 'Nationwide';
-  pills.innerHTML = `
-    <span class="s-pill sp-blue">${scholData.type}</span>
-    <span class="s-pill sp-green">${scholData.amount}</span>
-    <span class="s-pill sp-gray">${scholData.level}</span>
-    <span class="s-pill sp-gray">📍 ${loc}</span>
-    <span class="s-pill sp-gray">🗓 Deadline: ${new Date(scholData.deadline).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}</span>
-  `;
+  const pill  = (cls,txt) => `<span class="text-[.65rem] font-bold px-2.5 py-1 rounded-full border ${cls}">${txt}</span>`;
+  pills.innerHTML =
+    pill('bg-[#EEF2FF] text-[#1A43BF] border-[#C7D2FE]', scholData.type) +
+    pill('bg-green-50 text-green-700 border-green-200', scholData.amount) +
+    pill('bg-[#f7f9ff] text-slate-500 border-slate-200', scholData.level) +
+    pill('bg-[#f7f9ff] text-slate-500 border-slate-200', '📍 '+loc) +
+    pill('bg-[#f7f9ff] text-slate-500 border-slate-200', '🗓 Deadline: '+new Date(scholData.deadline).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}));
 
   document.title = `Apply — ${scholData.name} | ScholarMap`;
 }
@@ -553,10 +463,11 @@ function validateAll() {
 /* ── SUBMIT ── */
 document.getElementById('apply-form').addEventListener('submit', async e => {
   e.preventDefault();
-  document.getElementById('err-banner').classList.remove('show');
+  document.getElementById('err-banner').classList.add('hidden');
 
   if (!validateAll()) {
-    document.getElementById('err-banner').classList.add('show');
+    const eb = document.getElementById('err-banner');
+    eb.classList.remove('hidden');
     document.getElementById('err-text').textContent = 'Please fill in all required fields correctly.';
     document.querySelector('.has-err')?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
@@ -565,50 +476,47 @@ document.getElementById('apply-form').addEventListener('submit', async e => {
   const btn = document.getElementById('submit-btn');
   btn.classList.add('loading'); btn.disabled=true;
 
-  const fullName   = `${document.getElementById('fname').value.trim()} ${document.getElementById('lname').value.trim()}`;
-  const email      = document.getElementById('email').value.trim();
-  const locStr     = [locSel.region?.name, locSel.province?.name, locSel.city?.name].filter(Boolean).join(' › ');
-  const refNum     = 'SM-'+Date.now().toString(36).toUpperCase();
-  const sName      = scholData?.name || 'ScholarMap Scholarship';
-  const sOrg       = scholData?.org  || 'ScholarMap';
+  const fullName = `${document.getElementById('fname').value.trim()} ${document.getElementById('lname').value.trim()}`;
+  const email    = document.getElementById('email').value.trim();
+  const locStr   = [locSel.region?.name, locSel.province?.name, locSel.city?.name].filter(Boolean).join(' › ');
+  const refNum   = 'SM-'+Date.now().toString(36).toUpperCase();
+  const sName    = scholData?.name || 'ScholarMap Scholarship';
+  const sOrg     = scholData?.org  || 'ScholarMap';
 
-  const params = {
-    to_email:         email,
-    to_name:          fullName,
-    scholarship_name: sName,
-    scholarship_org:  sOrg,
-    school:           document.getElementById('school').value.trim(),
-    course:           document.getElementById('course').value.trim(),
-    year:             document.getElementById('year').value,
-    location:         locStr,
-    gdrive_link:      document.getElementById('gdrive').value.trim(),
-    notes:            document.getElementById('notes').value.trim() || 'None',
-    ref_number:       refNum,
+  const tplParams = {
+    to_email: email, to_name: fullName,
+    scholarship_name: sName, scholarship_org: sOrg,
+    school:   document.getElementById('school').value.trim(),
+    course:   document.getElementById('course').value.trim(),
+    year:     document.getElementById('year').value,
+    location: locStr,
+    gdrive_link: document.getElementById('gdrive').value.trim(),
+    notes:    document.getElementById('notes').value.trim() || 'None',
+    ref_number: refNum,
   };
 
   try {
-    // Check if EmailJS is configured
     if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
-      // Dev mode — skip email, go straight to success
-      console.log('EmailJS not configured. In production, replace the keys. Params:', params);
+      console.log('EmailJS not configured. Params:', tplParams);
       showSuccess(fullName, email, sName);
       return;
     }
-
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, tplParams);
     showSuccess(fullName, email, sName);
   } catch(err) {
     console.error('EmailJS error:', err);
-    document.getElementById('err-banner').classList.add('show');
-    document.getElementById('err-text').textContent = 'Failed to send confirmation email. Please try again or contact support.';
+    const eb = document.getElementById('err-banner');
+    eb.classList.remove('hidden');
+    document.getElementById('err-text').textContent = 'Failed to send email. Please try again or contact support.';
     btn.classList.remove('loading'); btn.disabled=false;
   }
 });
 
 function showSuccess(name, email, scholarship) {
   document.getElementById('apply-form').style.display='none';
-  document.getElementById('success-screen').classList.add('show');
-  document.getElementById('step-confirm').classList.add('on');
+  const ss = document.getElementById('success-screen');
+  ss.classList.remove('hidden'); ss.classList.add('flex');
+  document.getElementById('step-confirm').classList.add('text-[#1A43BF]');
   document.getElementById('success-scholarship').textContent = scholarship;
   document.getElementById('success-email').textContent = email;
   window.scrollTo({top:0,behavior:'smooth'});
@@ -616,16 +524,11 @@ function showSuccess(name, email, scholarship) {
 
 /* ── INIT ── */
 loadPSGC();
-
-// Load SCHOLARSHIPS from scholarships.js if it exists in same scope
-if (document.referrer || true) {
-  // Try to read SCHOLARSHIPS from included script — load it dynamically
-  const sc = document.createElement('script');
-  sc.src = './js/scholarships.js';
-  sc.onload = loadBanner;
-  sc.onerror = loadBanner; // still run even if file missing
-  document.head.appendChild(sc);
-}
+const sc = document.createElement('script');
+sc.src = './js/scholarships.js';
+sc.onload = loadBanner;
+sc.onerror = loadBanner;
+document.head.appendChild(sc);
 </script>
 </body>
 </html>
