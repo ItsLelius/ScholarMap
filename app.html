@@ -1,170 +1,881 @@
- <!DOCTYPE html>
-<html lang="en" class="h-full">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ScholarMap | Dashboard</title>
-    
-    <link rel="icon" type="image/png" href="./assets/ScholarMapTabIcon.png">
-    <link rel="stylesheet" href="./css/output.css">
-    <link rel="stylesheet" href="./css/customApp.css">
-    <link rel="stylesheet" href="./css/customIndex.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScholarMap | Dashboard</title>
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7f9ff;color:#0f172a;-webkit-font-smoothing:antialiased}
+button{border:none;background:none;font-family:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit;cursor:pointer}
+input{font-family:inherit}
+img{-webkit-user-drag:none}
+*{-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#1A43BF}
+
+/* ── VARIABLES ── */
+:root{
+  --blue:#1A43BF;--blue-h:#1535a0;--blue-lt:#EEF2FF;--blue-md:#C7D2FE;
+  --green:#16a34a;--green-lt:#f0fdf4;
+  --red:#dc2626;--red-lt:#fef2f2;
+  --purple:#7c3aed;--purple-lt:#faf5ff;
+  --amber:#d97706;
+  --dark:#0f172a;--mid:#475569;--soft:#94a3b8;
+  --bg:#f7f9ff;--surface:#ffffff;--border:#e8edf5;
+  --nav:56px;--bar:252px
+}
+
+/* ── NAVBAR ── */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:200;background:rgba(255,255,255,.97);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px}
+.nav-brand{display:flex;align-items:center;gap:7px;flex-shrink:0;opacity:1;transition:opacity .2s}
+.nav-brand:hover{opacity:.65}
+.nav-brand img{height:26px;width:auto}
+.nav-brand-txt{font-size:1rem;font-weight:900;color:var(--dark);letter-spacing:-.02em}
+.nav-brand-txt em{font-style:normal;color:var(--blue)}
+.nav-search{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:0 12px;height:34px;transition:border-color .2s,box-shadow .2s}
+.nav-search:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,67,191,.08)}
+.nav-search svg{flex-shrink:0;color:var(--soft)}
+.nav-search input{flex:1;border:none;background:none;outline:none;font-size:.82rem;font-weight:500;color:var(--dark)}
+.nav-search input::placeholder{color:var(--soft)}
+.nav-search kbd{font-size:.6rem;font-weight:700;color:var(--soft);background:var(--border);padding:2px 5px;border-radius:4px;flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.nav-link{font-size:.78rem;font-weight:600;color:var(--mid);padding:5px 9px;border-radius:8px;transition:all .15s}
+.nav-link:hover{color:var(--blue);background:var(--blue-lt)}
+.nav-back{display:flex;align-items:center;gap:5px;font-size:.76rem;font-weight:700;color:var(--soft);padding:5px 9px;border-radius:8px;border:1.5px solid var(--border);margin-left:2px;transition:all .15s}
+.nav-back:hover{color:var(--blue);border-color:var(--blue-md);background:var(--blue-lt)}
+.hamburger{display:none;flex-direction:column;gap:4px;padding:8px;border-radius:8px}
+.hamburger span{width:20px;height:2px;background:var(--dark);border-radius:2px;display:block;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ── BODY LAYOUT ── */
+.body{position:fixed;top:var(--nav);left:0;right:0;bottom:0;display:flex}
+.dim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:180}
+.dim.on{display:block}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{width:var(--bar);flex-shrink:0;height:100%;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:190;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.sb-sec{padding:16px 14px 0}
+.sb-sec-btm{margin-top:auto;padding:14px 14px 0;border-top:1px solid var(--border)}
+.sb-label{font-size:.62rem;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+
+/* view context chip */
+.vc{display:flex;align-items:center;gap:9px;background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:12px;padding:10px 11px}
+.vc-icon{width:28px;height:28px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.vc strong{display:block;font-size:.82rem;font-weight:800;color:var(--blue)}
+.vc span{display:block;font-size:.66rem;font-weight:600;color:#818cf8}
+
+/* glance grid */
+.glance{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.gc{border-radius:12px;padding:11px 10px;display:flex;flex-direction:column;gap:3px}
+.gc-n{font-size:1.35rem;font-weight:900;letter-spacing:-.03em;line-height:1}
+.gc-l{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.gc-blue{background:var(--blue-lt)} .gc-blue .gc-n{color:var(--blue)} .gc-blue .gc-l{color:var(--blue-md)}
+.gc-green{background:var(--green-lt)} .gc-green .gc-n{color:var(--green)} .gc-green .gc-l{color:#86efac}
+.gc-red{background:var(--red-lt)} .gc-red .gc-n{color:var(--red)} .gc-red .gc-l{color:#fca5a5}
+.gc-purple{background:var(--purple-lt)} .gc-purple .gc-n{color:var(--purple)} .gc-purple .gc-l{color:#c4b5fd}
+
+/* side nav */
+.snav{display:flex;flex-direction:column;gap:3px}
+.sn{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:12px;width:100%;transition:background .15s;color:var(--mid)}
+.sn:hover{background:var(--bg)}
+.sn.active{background:var(--blue-lt);color:var(--blue)}
+.sn-ico{width:30px;height:30px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sn.active .sn-ico{background:#fff}
+.sn-txt{flex:1;display:flex;flex-direction:column;gap:1px}
+.sn-txt strong{font-size:.79rem;font-weight:800}
+.sn-txt small{font-size:.65rem;color:var(--soft)}
+.sn.active .sn-txt small{color:#818cf8}
+.sn-ct{font-size:.63rem;font-weight:900;background:var(--bg);color:var(--soft);min-width:20px;height:17px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.sn-ct.hi{background:var(--blue);color:#fff}
+
+/* filter button */
+.filter-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 11px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;font-size:.79rem;font-weight:700;color:var(--mid);transition:all .18s;margin-bottom:9px}
+.filter-btn:hover,.filter-btn.on{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.pill{display:inline-flex;align-items:center;font-size:.65rem;font-weight:700;color:var(--blue);background:var(--blue-lt);border:1px solid var(--blue-md);padding:2px 7px;border-radius:99px}
+
+/* ── MAIN PANEL ── */
+.main{flex:1;height:100%;overflow-y:auto;display:flex;flex-direction:column;background:var(--bg);min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:10}
+.tb-h{font-size:1.15rem;font-weight:900;color:var(--dark);letter-spacing:-.02em}
+.tb-s{font-size:.73rem;color:var(--soft);margin-top:2px}
+.tb-s strong{color:var(--dark)}
+.sort-row{display:flex;align-items:center;gap:3px}
+.sort-lbl{font-size:.7rem;font-weight:600;color:var(--soft);margin-right:2px}
+.sort-btn{font-size:.7rem;font-weight:700;color:var(--soft);padding:5px 9px;border-radius:7px;transition:all .14s}
+.sort-btn:hover{background:var(--bg);color:var(--dark)}
+.sort-btn.active{background:var(--blue-lt);color:var(--blue)}
+
+/* tag bar */
+.tagbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.tag{font-size:.68rem;font-weight:700;color:var(--soft);padding:4px 10px;border-radius:99px;border:1.5px solid transparent;white-space:nowrap;transition:all .14s}
+.tag:hover{border-color:var(--border);color:var(--dark)}
+.tag.active{background:var(--blue-lt);border-color:var(--blue-md);color:var(--blue)}
+.tsep{width:1px;height:16px;background:var(--border);margin:0 3px;flex-shrink:0}
+
+/* grid */
+.grid{padding:16px 18px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:14px;align-content:start}
+
+/* ── CARD ── */
+.card{background:var(--surface);border-radius:18px;border:1.5px solid var(--border);display:flex;flex-direction:column;overflow:hidden;animation:fadeUp .4s cubic-bezier(.16,1,.3,1) both;transition:transform .2s,box-shadow .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(26,67,191,.1);border-color:var(--blue-md)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card-img{height:105px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative;flex-shrink:0}
+.card-badge{position:absolute;top:9px;left:9px;font-size:.57rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:3px 7px;border-radius:99px;background:rgba(255,255,255,.92)}
+.b-gov{color:var(--blue)} .b-found{color:var(--purple)} .b-priv{color:var(--amber)} .b-lgu{color:var(--green)}
+.card-save{position:absolute;top:9px;right:9px;width:27px;height:27px;border-radius:8px;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--soft)}
+.card-save:hover{color:var(--blue);background:#fff}
+.card-save.saved{color:var(--blue)}
+.card-save.saved svg{fill:var(--blue)}
+.card-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:7px}
+.card-loc{display:flex;flex-wrap:wrap;align-items:center;gap:3px}
+.loc-tag{font-size:.6rem;font-weight:700;color:var(--blue);background:var(--blue-lt);border:1px solid var(--blue-md);padding:2px 6px;border-radius:99px}
+.loc-sep{color:var(--blue-md);font-size:.6rem}
+.card-name{font-size:.85rem;font-weight:800;color:var(--dark);line-height:1.3}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px}
+.req-tag{font-size:.6rem;font-weight:600;color:var(--mid);background:var(--bg);padding:2px 6px;border-radius:5px;border:1px solid var(--border)}
+.card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border);margin-top:auto}
+.deadline{display:flex;align-items:center;gap:3px;font-size:.66rem;font-weight:700}
+.dl-urgent{color:var(--red)} .dl-soon{color:var(--amber)} .dl-safe{color:var(--green)} .dl-expired{color:var(--soft);text-decoration:line-through}
+.amount{font-size:.69rem;font-weight:900;color:var(--blue)}
+.view-btn{width:100%;margin-top:8px;padding:8px;background:var(--blue-lt);color:var(--blue);border-radius:10px;font-size:.75rem;font-weight:800;transition:all .15s;border:1.5px solid var(--blue-md)}
+.view-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+.empty.hide{display:none}
+.empty-icon{font-size:2.8rem;margin-bottom:14px}
+.empty h3{font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:5px}
+.empty p{font-size:.82rem;color:var(--soft);margin-bottom:18px}
+.empty-reset{font-size:.78rem;font-weight:700;color:var(--blue);background:var(--blue-lt);border:1.5px solid var(--blue-md);padding:8px 18px;border-radius:10px;transition:all .15s}
+.empty-reset:hover{background:var(--blue);color:#fff}
+
+/* ── MODAL ── */
+.modal-wrap{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
+.modal-wrap.open{opacity:1;pointer-events:all}
+@media(min-width:600px){.modal-wrap{align-items:center;padding:20px}}
+.modal{background:var(--surface);width:100%;max-width:540px;max-height:92vh;overflow-y:auto;position:relative;border-radius:22px 22px 0 0;transform:translateY(24px);transition:transform .32s cubic-bezier(.16,1,.3,1);box-shadow:0 -6px 50px rgba(0,0,0,.16)}
+@media(min-width:600px){.modal{border-radius:22px;transform:scale(.96) translateY(12px);box-shadow:0 28px 70px rgba(0,0,0,.2)}}
+.modal-wrap.open .modal{transform:none}
+.modal-x{position:absolute;top:12px;right:12px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .15s}
+.modal-x:hover{transform:scale(1.1)}
+.m-hero{height:180px;display:flex;align-items:center;justify-content:center;font-size:3.6rem;border-radius:22px 22px 0 0;flex-shrink:0}
+@media(min-width:600px){.m-hero{border-radius:22px 22px 0 0}}
+.m-body{padding:20px}
+.m-loc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:11px}
+.m-loc-tag{font-size:.64rem;font-weight:700;color:var(--blue);background:var(--blue-lt);border:1px solid var(--blue-md);padding:2px 7px;border-radius:99px}
+.m-hrow{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.m-hrow>div{flex:1}
+.m-org{font-size:.67rem;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.m-title{font-size:1.2rem;font-weight:900;color:var(--dark);letter-spacing:-.02em;line-height:1.25}
+.m-save-top{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 11px;border-radius:11px;flex-shrink:0;border:1.5px solid var(--border);color:var(--soft);font-size:.61rem;font-weight:700;transition:all .15s}
+.m-save-top:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.m-save-top.saved{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.m-save-top.saved svg{fill:var(--blue)}
+.m-meta{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:16px}
+@media(min-width:460px){.m-meta{grid-template-columns:repeat(4,1fr)}}
+.m-mi{background:var(--bg);border-radius:10px;padding:10px;border:1px solid var(--border)}
+.m-ml{font-size:.58rem;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.m-mv{font-size:.8rem;font-weight:800;color:var(--dark)}
+.m-sec{margin-bottom:15px}
+.m-sec-lbl{font-size:.63rem;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.m-desc{font-size:.84rem;color:var(--mid);line-height:1.7;font-weight:500}
+.m-reqs{list-style:none;display:flex;flex-direction:column;gap:5px}
+.m-reqs li{display:flex;align-items:flex-start;gap:7px;font-size:.82rem;color:var(--mid);font-weight:500}
+.m-reqs li::before{content:'✓';flex-shrink:0;width:16px;height:16px;background:var(--green-lt);color:var(--green);border-radius:50%;font-size:.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.m-actions{display:flex;gap:8px;margin-top:16px}
+.m-save-full{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);font-size:.79rem;font-weight:800;color:var(--mid);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.m-save-full:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt)}
+.m-save-full.saved{background:var(--blue-lt);border-color:var(--blue);color:var(--blue)}
+.m-save-full.saved svg{fill:var(--blue)}
+.m-apply{flex:2;padding:12px;border-radius:12px;background:var(--blue);color:#fff;font-size:.82rem;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(26,67,191,.3);transition:all .15s}
+.m-apply:hover{background:var(--blue-h);transform:translateY(-1px)}
+
+/* ── FILTER SIDEBAR ── */
+.fs{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:100vw;background:var(--surface);box-shadow:-4px 0 40px rgba(0,0,0,.1);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1)}
+@media(min-width:400px){.fs{width:380px}}
+.fs.open{transform:translateX(0)}
+.fs-hd{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.fs-hd h2{font-size:1.3rem;font-weight:900;color:var(--dark)}
+.fs-hd p{font-size:.69rem;color:var(--soft);margin-top:2px}
+.fs-hd-x{padding:7px;border-radius:50%;transition:background .15s;color:var(--soft)}
+.fs-hd-x:hover{background:var(--bg)}
+.fs-body{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:16px}
+.fs-field label{display:flex;align-items:center;gap:6px;font-size:.64rem;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+.fs-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);opacity:.3;flex-shrink:0;transition:opacity .2s}
+.fs-dot.on{opacity:1}
+.fs-foot{padding:12px 24px 24px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.fs-clear{flex:1;padding:12px;background:var(--bg);color:var(--mid);font-weight:700;font-size:.82rem;border-radius:12px;border:1.5px solid var(--border);transition:all .15s}
+.fs-clear:hover{background:var(--border)}
+.fs-apply{flex:2;padding:12px;background:var(--blue);color:#fff;font-weight:800;font-size:.82rem;border-radius:12px;box-shadow:0 4px 14px rgba(26,67,191,.3);transition:all .15s}
+.fs-apply:hover{background:var(--blue-h)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:350;opacity:0;pointer-events:none;transition:opacity .4s}
+.ov.on{opacity:1;pointer-events:all}
+
+/* ── PSGC DROPDOWNS ── */
+.dw{position:relative}
+.dt{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.875rem;color:#94a3b8;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s;user-select:none}
+.dt.has-val{color:#1e293b;background:#fff;border-color:#c7d2fe}
+.dt.open{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,67,191,.1);background:#fff}
+.dt.off{opacity:.45;cursor:not-allowed;pointer-events:none}
+.dt-txt{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dt-arr{flex-shrink:0;margin-left:7px;transition:transform .25s;color:#94a3b8}
+.dt.open .dt-arr{transform:rotate(180deg);color:var(--blue)}
+.dp{position:absolute;left:0;right:0;z-index:9999;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 16px 36px rgba(0,0,0,.12),0 4px 10px rgba(0,0,0,.06);overflow:hidden;display:none;flex-direction:column;max-height:230px}
+.dp.open{display:flex;animation:dpIn .18s ease}
+.dp.up{bottom:calc(100% + 6px);top:auto}
+.dp.dn{top:calc(100% + 6px);bottom:auto}
+@keyframes dpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.dp-sw{padding:8px 9px 6px;border-bottom:1px solid #f1f5f9;flex-shrink:0}
+.dp-s{width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.79rem;color:#1e293b;background:#f8fafc;outline:none;transition:border-color .2s;box-sizing:border-box;font-family:inherit}
+.dp-s:focus{border-color:var(--blue);background:#fff}
+.dp-opts{overflow-y:auto;flex:1;padding:4px}
+.dp-o{padding:8px 10px;border-radius:8px;font-size:.83rem;color:#334155;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-o:hover{background:#EEF2FF;color:var(--blue)}
+.dp-o.sel{background:var(--blue);color:#fff;font-weight:700}
+.dp-o.hide{display:none}
+.dp-empty{padding:13px;font-size:.77rem;color:#94a3b8;text-align:center}
+.dp-spin{display:none;width:13px;height:13px;border:2px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;margin-left:6px}
+.loading .dp-spin{display:block}
+.loading .dt{pointer-events:none;opacity:.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loc-pill{display:inline-flex;align-items:center;gap:3px;background:#EEF2FF;color:var(--blue);font-size:.69rem;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid #C7D2FE}
+.loc-summary{display:flex;flex-wrap:wrap;gap:5px}
+.loc-summary.hide{display:none}
+
+/* ── MAP OVERLAY ── */
+.map-overlay{position:fixed;top:var(--nav);left:var(--bar);right:0;bottom:0;z-index:150;background:var(--surface);display:none;flex-direction:column}
+.map-overlay.open{display:flex}
+.map-overlay iframe{flex:1;border:none;width:100%}
+.map-bar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.map-back-btn{display:flex;align-items:center;gap:5px;font-size:.76rem;font-weight:700;color:var(--mid);padding:5px 11px;border-radius:8px;border:1.5px solid var(--border);transition:all .15s}
+.map-back-btn:hover{color:var(--blue);border-color:var(--blue-md);background:var(--blue-lt)}
+.map-info{font-size:.79rem;color:var(--mid)}
+.map-info strong{color:var(--blue)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{position:fixed;top:var(--nav);left:0;bottom:0;transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .hamburger{display:flex}
+  .nav-links .nav-link{display:none}
+  .map-overlay{left:0}
+}
+@media(max-width:580px){
+  .grid{padding:12px 12px 40px;grid-template-columns:1fr}
+  .topbar{padding:12px 14px 10px}
+  .tagbar{padding:7px 14px}
+  .sort-row{display:none}
+}
+</style>
 </head>
-<body class="bg-slate-50 font-sans antialiased h-full flex flex-col">
+<body>
 
-    <div class="fixed inset-0 pointer-events-none -z-10 bg-slate-50">
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808018_0.5px,transparent_0.5px),linear-gradient(to_bottom,#80808018_.5px,transparent_0.1px)] bg-[size:40px_40px]"></div>
+<!-- NAVBAR -->
+<header class="nav">
+  <a href="index.html" class="nav-brand">
+    <img src="./assets/img/ScholarMapLogo.png" alt="ScholarMap" onerror="this.style.display='none'">
+    <span class="nav-brand-txt">Scholar<em>Map</em></span>
+  </a>
+
+  <div class="nav-search">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="gsearch" type="text" placeholder="Search by name, org, keyword, location..." autocomplete="off">
+    <kbd>⌘K</kbd>
+  </div>
+
+  <nav class="nav-links">
+    <a href="index.html#home" class="nav-link">Home</a>
+    <a href="index.html#about" class="nav-link">About</a>
+    <a href="index.html" class="nav-back">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Home
+    </a>
+  </nav>
+
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</header>
+
+<!-- APP BODY -->
+<div class="body">
+  <div class="dim" id="dim"></div>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sb-sec">
+      <p class="sb-label">Viewing</p>
+      <div class="vc">
+        <div class="vc-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <strong id="vc-main">Nationwide</strong>
+          <span id="vc-sub">All 81 provinces</span>
+        </div>
+      </div>
     </div>
 
-    <header class="sticky top-0 z-[110] w-full bg-white/95 backdrop-blur-sm shadow-sm px-6 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-2 min-w-[150px] transition-all hover:opacity-70 active:scale-95">
-                <img src="./assets/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto">
-                <span class="text-xl font-black tracking-tight text-black">Scholar<span style="color: #1A43BF;">Map</span></span>
-            </a>
-
-            <nav class="hidden md:flex items-center space-x-8 font-medium text-slate-600">
-                <a href="index.html#home" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">Home</a>
-                <a href="index.html#how-it-works" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">Explore</a>
-                <a href="index.html#about" class="nav-link hover:text-[#1A43BF] transition-colors text-sm">About</a>
-            </nav>
-
-            <div class="hidden md:block min-w-[150px]"></div>
-
-            <button id="menu-btn" class="md:hidden flex flex-col space-y-1.5 p-2 focus:outline-none">
-                <span id="top-line" class="w-6 h-0.5 bg-black transition-transform duration-300"></span>
-                <span id="mid-line" class="w-6 h-0.5 bg-black transition-opacity duration-300"></span>
-                <span id="bot-line" class="w-6 h-0.5 bg-black transition-transform duration-300"></span>
-            </button>
-        </div>
-    </header>
-
-    <main id="app-main" class="flex-1 overflow-y-auto page-fade-in px-6">
-        <div class="max-w-7xl mx-auto py-12">
-            <header class="mb-12">
-                <div class="inline-block px-3 py-1 mb-4 rounded-lg bg-blue-50 text-[#1A43BF] text-xs font-bold uppercase tracking-widest cursor-default">
-                    Scholar Console v1.0
-                </div>
-                <h1 class="text-4xl md:text-5xl font-black text-black mb-3 tracking-tight">
-                    Welcome back, <span style="color: #1A43BF;">Scholar!</span>
-                </h1>
-                <p class="text-lg text-slate-500 max-w-2xl leading-relaxed">
-                    Your academic journey is mapped and ready.
-                </p>
-            </header>
-
-            <div class="w-full h-auto pb-32">
-                </div>
-        </div>
-    </main>
-
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[120] px-4 w-full max-w-fit">
-        <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl flex items-center gap-1 md:gap-2">
-            
-            <button title="Nationwide View" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5v.5m-6 3h6m-3-3v3m-3.055-15.065A9 9 0 1020.945 13H18.945" />
-                </svg>
-            </button>
-
-            <div class="w-px h-6 bg-white/10 mx-1"></div>
-
-            <button id="filter-trigger" title="Filter Location" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-            </button>
-
-            <button title="Search & Reset" class="flex items-center gap-2 px-4 py-2.5 bg-[#1A43BF] text-white rounded-xl hover:brightness-110 transition-all active:scale-95 font-bold text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span>Search</span>
-            </button>
-
-            <div class="w-px h-6 bg-white/10 mx-1"></div>
-
-            <button title="Saved Scholarships" class="p-3 text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 group relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-500 rounded-full"></span>
-            </button>
-        </div>
+    <div class="sb-sec" style="padding-top:14px">
+      <p class="sb-label">At a Glance</p>
+      <div class="glance">
+        <div class="gc gc-blue">  <span class="gc-n" id="st-total">0</span><span class="gc-l">Total</span></div>
+        <div class="gc gc-green"> <span class="gc-n" id="st-open">0</span><span class="gc-l">Open</span></div>
+        <div class="gc gc-red">   <span class="gc-n" id="st-urgent">0</span><span class="gc-l">Urgent</span></div>
+        <div class="gc gc-purple"><span class="gc-n" id="st-saved">0</span><span class="gc-l">Saved</span></div>
+      </div>
     </div>
 
-    <div id="filter-sidebar" class="fixed inset-y-0 right-0 w-80 md:w-96 bg-white shadow-2xl z-[200] transform translate-x-full transition-transform duration-500 ease-in-out p-8">
-        <div class="flex items-center justify-between mb-10">
-            <h2 class="text-2xl font-black text-black">Location</h2>
-            <button id="close-filter" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="space-y-6">
-            <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Province</label>
-                <input type="text" id="prov-input" placeholder="Enter Province..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">City / Municipality</label>
-                <input type="text" id="city-input" placeholder="Enter City..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Barangay</label>
-                <input type="text" id="brgy-input" placeholder="Enter Barangay..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#1A43BF] transition-colors">
-            </div>
-            
-            <div class="flex gap-3 mt-4">
-                <button id="clear-filters" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Clear</button>
-                <button class="flex-[2] py-4 bg-[#1A43BF] text-white font-bold rounded-2xl shadow-lg shadow-blue-900/20 hover:brightness-110 transition-all">Apply</button>
-            </div>
-        </div>
+    <div class="sb-sec" style="padding-top:14px">
+      <p class="sb-label">Navigation</p>
+      <nav class="snav">
+        <button class="sn active" data-view="browse">
+          <span class="sn-ico"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          <span class="sn-txt"><strong>Browse All</strong><small>All scholarships</small></span>
+          <span class="sn-ct" id="ct-browse">0</span>
+        </button>
+        <button class="sn" data-view="map">
+          <span class="sn-ico"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span>
+          <span class="sn-txt"><strong>Map View</strong><small>Browse by province</small></span>
+        </button>
+        <button class="sn" data-view="saved">
+          <span class="sn-ico"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="sn-txt"><strong>Saved</strong><small>Your shortlist</small></span>
+          <span class="sn-ct hi" id="ct-saved" style="display:none">0</span>
+        </button>
+      </nav>
     </div>
 
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[150] hidden opacity-0 transition-opacity duration-500"></div>
+    <div class="sb-sec-btm">
+      <p class="sb-label">Filter</p>
+      <button class="filter-btn" id="ftrig">
+        <span style="display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Filter by Location
+        </span>
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="pills" id="loc-pills"></div>
+    </div>
+  </aside>
 
-    <script src="./js/navbar.js"></script>
-    <script>
-        // Page Entrance Animation
-        window.addEventListener('load', () => {
-            document.getElementById('app-main').classList.add('active');
-        });
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 class="tb-h" id="view-title">Browse Scholarships</h1>
+        <p class="tb-s">Showing <strong id="showing">0</strong> of <strong id="of-total">0</strong> scholarships</p>
+      </div>
+      <div class="sort-row">
+        <span class="sort-lbl">Sort:</span>
+        <button class="sort-btn active" data-sort="newest">Newest</button>
+        <button class="sort-btn" data-sort="deadline">Deadline</button>
+        <button class="sort-btn" data-sort="amount">Amount ↓</button>
+        <button class="sort-btn" data-sort="name">A–Z</button>
+      </div>
+    </div>
 
-        // Sidebar Elements
-        const filterTrigger = document.getElementById('filter-trigger');
-        const filterSidebar = document.getElementById('filter-sidebar');
-        const closeFilter = document.getElementById('close-filter');
-        const overlay = document.getElementById('sidebar-overlay');
-        const clearBtn = document.getElementById('clear-filters');
+    <div class="tagbar">
+      <button class="tag active" data-tag="all">All Types</button>
+      <button class="tag" data-tag="Government">Government</button>
+      <button class="tag" data-tag="Foundation">Foundation</button>
+      <button class="tag" data-tag="Private">Private</button>
+      <button class="tag" data-tag="LGU">LGU</button>
+      <div class="tsep"></div>
+      <button class="tag active" data-level="all">All Levels</button>
+      <button class="tag" data-level="College">College</button>
+      <button class="tag" data-level="Senior High">Senior High</button>
+      <button class="tag" data-level="Graduate">Graduate</button>
+      <button class="tag" data-level="Elementary">Elementary</button>
+    </div>
 
-        function toggleSidebar() {
-            const isOpen = filterSidebar.classList.contains('open');
-            if (!isOpen) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    filterSidebar.classList.add('open');
-                    overlay.classList.add('show');
-                }, 10);
-            } else {
-                filterSidebar.classList.remove('open');
-                overlay.classList.remove('show');
-                setTimeout(() => overlay.classList.add('hidden'), 500);
-            }
-        }
+    <div class="grid" id="grid"></div>
 
-        filterTrigger.addEventListener('click', toggleSidebar);
-        closeFilter.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
+    <div class="empty hide" id="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>No scholarships found</h3>
+      <p>Try adjusting your search, filters, or location.</p>
+      <button class="empty-reset" id="reset-btn">Reset all filters</button>
+    </div>
+  </main>
 
-        // Clear Inputs
-        clearBtn.addEventListener('click', () => {
-            ['prov-input', 'city-input', 'brgy-input'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-        });
-    </script>
+  <!-- MAP OVERLAY -->
+  <div class="map-overlay" id="map-overlay">
+    <div class="map-bar">
+      <button class="map-back-btn" id="map-close">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to Browse
+      </button>
+      <p class="map-info">Philippine Scholarship Map — <strong id="map-ct">0</strong> regions active</p>
+    </div>
+    <iframe id="map-frame" src="./map.html" title="Scholarship Map"></iframe>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-wrap" id="modal-wrap">
+  <div class="modal">
+    <button class="modal-x" id="modal-x">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="m-hero" id="m-hero">🎓</div>
+    <div class="m-body">
+      <div class="m-loc" id="m-loc"></div>
+      <div class="m-hrow">
+        <div><p class="m-org" id="m-org"></p><h2 class="m-title" id="m-title"></h2></div>
+        <button class="m-save-top" id="m-save-top">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span id="m-save-top-lbl">Save</span>
+        </button>
+      </div>
+      <div class="m-meta" id="m-meta"></div>
+      <div class="m-sec"><p class="m-sec-lbl">Description</p><p class="m-desc" id="m-desc"></p></div>
+      <div class="m-sec"><p class="m-sec-lbl">Requirements</p><ul class="m-reqs" id="m-reqs"></ul></div>
+      <div class="m-actions">
+        <button class="m-save-full" id="m-save-full">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span id="m-save-full-lbl">Add to Saved</span>
+        </button>
+        <a class="m-apply" id="m-apply" href="#" target="_blank">Apply Now →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER SIDEBAR -->
+<div class="fs" id="fs">
+  <div class="fs-hd">
+    <div><h2>Filter Location</h2><p>Powered by PSGC</p></div>
+    <button class="fs-hd-x" id="fs-close">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="fs-body">
+    <div class="fs-field">
+      <label><span class="fs-dot" id="dot-region"></span>Region</label>
+      <div class="dw" id="dw-region">
+        <div class="dt off"><span class="dt-txt">Loading regions...</span><svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><div class="dp-spin"></div></div>
+        <div class="dp dn"><div class="dp-sw"><input class="dp-s" type="text" placeholder="Search region..."></div><div class="dp-opts"></div></div>
+      </div>
+    </div>
+    <div class="fs-field">
+      <label><span class="fs-dot" id="dot-province"></span>Province</label>
+      <div class="dw" id="dw-province">
+        <div class="dt off"><span class="dt-txt">Select Province</span><svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><div class="dp-spin"></div></div>
+        <div class="dp dn"><div class="dp-sw"><input class="dp-s" type="text" placeholder="Search province..."></div><div class="dp-opts"></div></div>
+      </div>
+    </div>
+    <div class="fs-field">
+      <label><span class="fs-dot" id="dot-city"></span>City / Municipality</label>
+      <div class="dw" id="dw-city">
+        <div class="dt off"><span class="dt-txt">Select City / Municipality</span><svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><div class="dp-spin"></div></div>
+        <div class="dp dn"><div class="dp-sw"><input class="dp-s" type="text" placeholder="Search city..."></div><div class="dp-opts"></div></div>
+      </div>
+    </div>
+    <div class="fs-field">
+      <label><span class="fs-dot" id="dot-barangay"></span>Barangay</label>
+      <div class="dw" id="dw-barangay">
+        <div class="dt off"><span class="dt-txt">Select Barangay</span><svg class="dt-arr" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><div class="dp-spin"></div></div>
+        <div class="dp dn"><div class="dp-sw"><input class="dp-s" type="text" placeholder="Search barangay..."></div><div class="dp-opts"></div></div>
+      </div>
+    </div>
+    <div class="loc-summary hide" id="loc-summary"></div>
+  </div>
+  <div class="fs-foot">
+    <button class="fs-clear" id="fs-clear">Clear</button>
+    <button class="fs-apply" id="fs-apply">Apply Filter</button>
+  </div>
+</div>
+<div class="ov" id="ov"></div>
+
+<script>
+/* ═══════════════════════════════
+   DATA — add/edit scholarships here
+═══════════════════════════════ */
+const DATA = [
+  {id:'ched-tulong',name:'CHED Tulong Dunong Program',org:'Commission on Higher Education',type:'Government',emoji:'🎓',bg:'linear-gradient(135deg,#dbeafe,#e0e7ff)',region:'Davao Region',province:'Davao del Sur',city:'Digos City',amount:'₱30,000/yr',slots:'500 slots',deadline:'2025-06-30',level:'College',req:['Filipino Citizen','GWA 1.75 or higher','Annual Income ≤ ₱400,000','No existing scholarship'],desc:'The CHED Tulong Dunong Program provides financial assistance to deserving but financially challenged students pursuing tertiary education. Priority is given to students from underprivileged families in underserved areas.',url:'#'},
+  {id:'sm-found',name:'SM Foundation College Scholarship',org:'SM Foundation Inc.',type:'Foundation',emoji:'🏫',bg:'linear-gradient(135deg,#dcfce7,#d1fae5)',region:'Davao Region',province:'Davao del Sur',city:'Davao City',amount:'₱60,000/yr',slots:'200 slots',deadline:'2025-06-15',level:'College',req:['High School Graduate','GWA 85% or higher','Annual Income ≤ ₱200,000','Enrolled in partner school'],desc:'SM Foundation provides full college scholarships to academically deserving but financially challenged students. Scholars receive monthly stipends and school allowances, and must maintain academic standards throughout the program.',url:'#'},
+  {id:'dost-sei',name:'DOST-SEI Merit Scholarship',org:'Dept. of Science and Technology',type:'Government',emoji:'⭐',bg:'linear-gradient(135deg,#fef3c7,#fde68a)',region:'Davao Region',province:'Davao del Norte',city:'Tagum City',amount:'₱40,000/yr',slots:'100 slots',deadline:'2025-02-28',level:'College',req:['Science or Tech course','NSAT Top 10%','Graduating High School','Top 10% of class'],desc:'The DOST-SEI Merit Scholarship supports students pursuing science and technology courses. Scholars receive full tuition, monthly stipend, and book allowance, and are expected to work in the Philippines for 2 years post-graduation.',url:'#'},
+  {id:'ayala-found',name:'Ayala Foundation Iskolar ng Bayan',org:'Ayala Foundation',type:'Foundation',emoji:'🌸',bg:'linear-gradient(135deg,#fce7f3,#fbcfe8)',region:'Davao Region',province:'Davao Oriental',city:'Mati City',amount:'₱75,000/yr',slots:'50 slots',deadline:'2025-08-01',level:'College',req:['Leadership track record','GWA 90% or higher','Community service hours','Essay and interview'],desc:'Ayala Foundation Iskolar ng Bayan supports outstanding students who demonstrate academic excellence and strong community involvement. This holistic scholarship values leadership, service, and character alongside performance.',url:'#'},
+  {id:'ched-grad',name:'CHED Graduate Scholarship',org:'Commission on Higher Education',type:'Government',emoji:'🔬',bg:'linear-gradient(135deg,#ede9fe,#ddd6fe)',region:'',province:'',city:'',amount:'₱120,000/yr',slots:'150 slots',deadline:'2025-09-30',level:'Graduate',req:['Graduate-level enrollment','Research proposal required','Letter of endorsement','BS from accredited school'],desc:'CHED provides graduate-level scholarships for students in priority fields. This program builds a pool of highly trained Filipino researchers and educators who will contribute to national development.',url:'#'},
+  {id:'jollibee-blt',name:'Jollibee Foundation BLT Program',org:'Jollibee Foundation',type:'Foundation',emoji:'🌿',bg:'linear-gradient(135deg,#ecfdf5,#a7f3d0)',region:'CALABARZON',province:'Laguna',city:'Santa Cruz',amount:'₱12,000/yr',slots:'1000 slots',deadline:'2025-07-15',level:'Elementary',req:['Elementary student','Family in agriculture','Teacher endorsement','Family income ≤ ₱100,000'],desc:"Jollibee Foundation's Busog Lusog Talino program provides nutrition and education support to elementary students from farming families. Students receive daily meals, school supplies, and annual stipends.",url:'#'},
+  {id:'gsis-educ',name:'GSIS Educational Assistance',org:'Government Service Insurance System',type:'Government',emoji:'🏛️',bg:'linear-gradient(135deg,#f0f9ff,#bae6fd)',region:'NCR',province:'',city:'Pasay City',amount:'₱18,000/yr',slots:'300 slots',deadline:'2025-05-31',level:'College',req:['Child of GSIS member','GWA 85%+','Enrolled in state university','No other govt scholarship'],desc:"GSIS Educational Assistance is exclusively for qualified dependents of GSIS members. It covers tuition fees and provides an annual allowance to help government employees' children access quality higher education.",url:'#'},
+  {id:'sss-educ',name:'SSS Educational Scholarship',org:'Social Security System',type:'Government',emoji:'📋',bg:'linear-gradient(135deg,#fff7ed,#fed7aa)',region:'NCR',province:'',city:'Quezon City',amount:'₱15,000/yr',slots:'200 slots',deadline:'2025-04-30',level:'College',req:['Dependent of SSS member','Member in good standing','GWA 80%+','Family income ≤ ₱180,000'],desc:"SSS provides educational assistance to qualified dependents of active SSS members. The program supports private sector employees' children in pursuing a college education with reduced financial burden.",url:'#'},
+  {id:'pcso-med',name:'PCSO Medical Scholarship',org:'Philippine Charity Sweepstakes Office',type:'Government',emoji:'🏥',bg:'linear-gradient(135deg,#fdf2f8,#fce7f3)',region:'',province:'',city:'',amount:'₱50,000/yr',slots:'60 slots',deadline:'2025-03-15',level:'College',req:['Medical or nursing course','GWA 88%+','Financial need certification','Commitment to serve rural areas'],desc:'PCSO Medical Scholarship supports students enrolled in medical and nursing courses. Priority is given to students from Geographically Isolated and Disadvantaged Areas (GIDAs) who commit to serve rural communities.',url:'#'},
+  {id:'deped-shs',name:'DepEd SHS Voucher Program',org:'Department of Education',type:'Government',emoji:'📚',bg:'linear-gradient(135deg,#f0fdf4,#dcfce7)',region:'',province:'',city:'',amount:'₱22,500/yr',slots:'Open',deadline:'2025-06-30',level:'Senior High',req:['Grade 10 completer','Enrolled in private SHS','ESC certificate','Philippine citizenship'],desc:'The DepEd SHS Voucher Program allows Grade 10 completers to enroll in non-DepEd schools by covering tuition. It expands access to quality senior high school education across the country.',url:'#'},
+  {id:'tesda',name:'TESDA Tech-Voc Scholarship',org:'TESDA',type:'Government',emoji:'🔧',bg:'linear-gradient(135deg,#f8fafc,#e2e8f0)',region:'',province:'',city:'',amount:'₱25,000 (one-time)',slots:'Open',deadline:'2025-12-31',level:'College',req:['Filipino citizen','TVET program enrollment','Passed TESDA assessment','No other TESDA grant'],desc:'TESDA offers training scholarships for technical-vocational programs nationwide. Scholars gain free skills training, tools, and certification fees, preparing them for immediate employment or livelihood opportunities.',url:'#'},
+  {id:'meralco',name:'MERALCO Foundation Scholarship',org:'MERALCO Foundation',type:'Foundation',emoji:'💡',bg:'linear-gradient(135deg,#fefce8,#fef9c3)',region:'NCR',province:'',city:'Pasig City',amount:'₱45,000/yr',slots:'80 slots',deadline:'2025-04-15',level:'College',req:['Engineering or CS course','GWA 88%+','MERALCO franchise area resident','Annual income ≤ ₱300,000'],desc:'MERALCO Foundation awards scholarships to students pursuing engineering and computer science. Scholars benefit from mentorship, internships, and possible employment at MERALCO after graduation.',url:'#'},
+  {id:'globe',name:'Globe Bridgecom Scholarship',org:'Globe Telecom',type:'Private',emoji:'📡',bg:'linear-gradient(135deg,#eff6ff,#dbeafe)',region:'',province:'',city:'',amount:'₱55,000/yr',slots:'40 slots',deadline:'2025-05-30',level:'College',req:['STEM strand graduate','GWA 90%+','Aptitude test required','Interview required'],desc:"Globe Telecom's Bridgecom Scholarship supports exceptional STEM students. Scholars gain access to industry mentors, hackathons, and a direct career path at Globe after graduation.",url:'#'},
+  {id:'aboitiz',name:'Aboitiz Foundation Scholarship',org:'Aboitiz Foundation',type:'Foundation',emoji:'⚡',bg:'linear-gradient(135deg,#fdf4ff,#fae8ff)',region:'Central Visayas',province:'Cebu',city:'Cebu City',amount:'₱70,000/yr',slots:'60 slots',deadline:'2025-07-31',level:'College',req:['Resident of Aboitiz community','GWA 85%+','Financial need','Priority courses only'],desc:'Aboitiz Foundation invests in education of young people from communities where Aboitiz Group operates. Scholars receive tuition grants, living allowances, and leadership development training.',url:'#'},
+  {id:'pagcor',name:'PAGCOR Educational Assistance',org:'Philippine Amusement and Gaming Corp',type:'Government',emoji:'🃏',bg:'linear-gradient(135deg,#fff1f2,#ffe4e6)',region:'',province:'',city:'',amount:'₱20,000/yr',slots:'250 slots',deadline:'2025-06-01',level:'College',req:['Financial need','GWA 80%+','Filipino citizen','Not currently employed'],desc:'PAGCOR uses a portion of its revenues to fund educational assistance for deserving Filipino students. Open to all courses, awarded on a need-basis with focus on financially marginalized applicants.',url:'#'},
+  {id:'bdo',name:'BDO Foundation Scholarship',org:'BDO Foundation',type:'Private',emoji:'🏦',bg:'linear-gradient(135deg,#f0fdf4,#d1fae5)',region:'',province:'',city:'',amount:'₱48,000/yr',slots:'100 slots',deadline:'2025-08-31',level:'College',req:['Business or Finance course','GWA 88%+','Financial need','Leadership potential'],desc:"BDO Foundation's scholarship supports students in Business, Finance, and Accountancy. Scholars may participate in BDO's internship and management trainee programs, opening doors to a banking career.",url:'#'},
+  {id:'pnb',name:'PNB Scholarship for Excellence',org:'Philippine National Bank',type:'Private',emoji:'🏧',bg:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',region:'NCR',province:'',city:'Manila',amount:'₱36,000/yr',slots:'70 slots',deadline:'2025-05-15',level:'College',req:['Economics, Business, or Law','GWA 87%+','Leadership involvement','Good moral character'],desc:'Philippine National Bank awards scholarships to outstanding students in Economics, Business, and Law. Scholars gain mentorship from PNB executives and possible placement opportunities.',url:'#'},
+  {id:'davao-lgu',name:'Davao City LGU Scholarship',org:'City Government of Davao',type:'LGU',emoji:'🏙️',bg:'linear-gradient(135deg,#fff7ed,#ffedd5)',region:'Davao Region',province:'Davao del Sur',city:'Davao City',amount:'₱24,000/yr',slots:'400 slots',deadline:'2025-06-30',level:'College',req:['Davao City resident 3+ years','GWA 85%+','Barangay clearance','No other LGU scholarship'],desc:'Davao City provides scholarship grants to qualified residents pursuing college degrees. Priority is given to courses aligned with the city development agenda: agriculture, engineering, health, and education.',url:'#'},
+  {id:'manila-lgu',name:'City of Manila Scholarship Grant',org:'City Government of Manila',type:'LGU',emoji:'🌆',bg:'linear-gradient(135deg,#f5f3ff,#ede9fe)',region:'NCR',province:'',city:'Manila',amount:'₱20,000/yr',slots:'600 slots',deadline:'2025-07-01',level:'College',req:['Manila resident','Voter reg. or birth cert.','GWA 82%+','Family income ≤ ₱250,000'],desc:'The City of Manila offers annual scholarship grants to deserving residents enrolled in accredited colleges and universities. Priority for students from urban poor communities.',url:'#'},
+  {id:'robinsons',name:'Robinsons Scholars Program',org:'JG Summit Holdings',type:'Private',emoji:'🛍️',bg:'linear-gradient(135deg,#fdf2f8,#fce7f3)',region:'',province:'',city:'',amount:'₱40,000/yr',slots:'90 slots',deadline:'2025-09-15',level:'College',req:['Business, Engineering, or IT','GWA 86%+','Leadership activities','Passed aptitude exam'],desc:"JG Summit's Robinsons Scholars Program nurtures future business leaders in Business, Engineering, and IT. Scholars receive full tuition, quarterly stipends, and priority employment consideration.",url:'#'},
+];
+
+/* ═════════════ STATE ═════════════ */
+let saved = new Set(JSON.parse(sessionStorage.getItem('sm')||'[]'));
+const F = {q:'',type:'all',level:'all',sort:'newest',view:'browse',r:'',p:'',c:'',b:''};
+let modalId = null;
+
+/* ═════════════ UTILS ═════════════ */
+function dl(s){
+  const t=new Date();t.setHours(0,0,0,0);
+  const d=new Date(s), diff=Math.ceil((d-t)/864e5);
+  const lbl=d.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+  return {lbl, cls: diff<0?'expired':diff<=14?'urgent':diff<=45?'soon':'safe', diff};
+}
+function bc(s){return[s.region,s.province,s.city].filter(Boolean)}
+function $(id){return document.getElementById(id)}
+function animN(id,n){
+  const el=$(id); if(!el)return;
+  const from=+el.textContent||0, t0=performance.now();
+  (function f(now){
+    const p=Math.min((now-t0)/600,1), e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(n-from)*e);
+    if(p<1)requestAnimationFrame(f);
+  })(t0);
+}
+
+/* ═════════════ GLANCE ═════════════ */
+function updateGlance(){
+  const today=new Date();today.setHours(0,0,0,0);
+  let open=0,urgent=0;
+  DATA.forEach(s=>{
+    const d=Math.ceil((new Date(s.deadline)-today)/864e5);
+    if(d>=0)open++;
+    if(d>=0&&d<=14)urgent++;
+  });
+  animN('st-total',DATA.length); animN('st-open',open);
+  animN('st-urgent',urgent); animN('st-saved',saved.size);
+  const nb=$('ct-browse'), ns=$('ct-saved');
+  if(nb)nb.textContent=DATA.length;
+  if(ns){ns.textContent=saved.size;ns.style.display=saved.size?'flex':'none';}
+}
+
+/* ═════════════ RENDER ═════════════ */
+function render(){
+  let pool=[...DATA];
+  if(F.view==='saved') pool=pool.filter(s=>saved.has(s.id));
+  if(F.r) pool=pool.filter(s=>!s.region  ||s.region.toLowerCase().includes(F.r.toLowerCase()));
+  if(F.p) pool=pool.filter(s=>!s.province||s.province.toLowerCase().includes(F.p.toLowerCase()));
+  if(F.c) pool=pool.filter(s=>!s.city    ||s.city.toLowerCase().includes(F.c.toLowerCase()));
+  if(F.q.trim()){
+    const q=F.q.toLowerCase();
+    pool=pool.filter(s=>s.name.toLowerCase().includes(q)||s.org.toLowerCase().includes(q)||
+      s.desc.toLowerCase().includes(q)||s.region.toLowerCase().includes(q)||
+      s.province.toLowerCase().includes(q)||s.city.toLowerCase().includes(q)||
+      s.req.some(r=>r.toLowerCase().includes(q)));
+  }
+  if(F.type!=='all')  pool=pool.filter(s=>s.type===F.type);
+  if(F.level!=='all') pool=pool.filter(s=>s.level===F.level);
+
+  const today=new Date();
+  pool.sort((a,b)=>{
+    if(F.sort==='newest')  return new Date(b.deadline)-new Date(a.deadline);
+    if(F.sort==='amount')  return (parseInt(b.amount.replace(/\D/g,''))||0)-(parseInt(a.amount.replace(/\D/g,''))||0);
+    if(F.sort==='name')    return a.name.localeCompare(b.name);
+    if(F.sort==='deadline'){
+      const da=new Date(a.deadline)-today, db=new Date(b.deadline)-today;
+      if(da<0&&db>=0)return 1; if(db<0&&da>=0)return-1; return da-db;
+    }
+  });
+
+  const grid=$('grid'), emp=$('empty');
+  grid.innerHTML='';
+  pool.forEach((s,i)=>grid.appendChild(buildCard(s,i)));
+  $('showing').textContent=pool.length;
+  $('of-total').textContent=DATA.length;
+  const none=pool.length===0;
+  grid.style.display=none?'none':'';
+  emp.classList.toggle('hide',!none);
+}
+
+function buildCard(s,i){
+  const {lbl,cls}=dl(s.deadline);
+  const locs=bc(s), sv=saved.has(s.id);
+  const bcls={Government:'b-gov',Foundation:'b-found',Private:'b-priv',LGU:'b-lgu'}[s.type]||'';
+  const el=document.createElement('article');
+  el.className='card';
+  el.style.animationDelay=Math.min(i*.04,.35)+'s';
+  el.innerHTML=`
+    <div class="card-img" style="background:${s.bg}">
+      ${s.emoji}
+      <span class="card-badge ${bcls}">${s.type}</span>
+      <button class="card-save${sv?' saved':''}" data-id="${s.id}">
+        <svg width="13" height="13" fill="${sv?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="card-loc">${locs.length?locs.map((p,i)=>`${i>0?'<span class="loc-sep">›</span>':''}<span class="loc-tag">${p}</span>`).join(''):'<span class="loc-tag">Nationwide</span>'}</div>
+      <h3 class="card-name">${s.name}</h3>
+      <div class="card-tags">${s.req.slice(0,3).map(r=>`<span class="req-tag">${r}</span>`).join('')}${s.req.length>3?`<span class="req-tag">+${s.req.length-3} more</span>`:''}</div>
+      <div class="card-foot">
+        <div class="deadline dl-${cls}">
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          ${cls==='expired'?'Closed':lbl}
+        </div>
+        <div class="amount">${s.amount}</div>
+      </div>
+      <button class="view-btn" data-id="${s.id}">View Details</button>
+    </div>`;
+  el.querySelector('.card-save').addEventListener('click',e=>{e.stopPropagation();toggleSave(s.id);});
+  el.querySelector('.view-btn').addEventListener('click',()=>openModal(s));
+  return el;
+}
+
+/* ═════════════ SAVE ═════════════ */
+function toggleSave(id){
+  saved.has(id)?saved.delete(id):saved.add(id);
+  sessionStorage.setItem('sm',JSON.stringify([...saved]));
+  updateGlance();
+  if(F.view==='saved'){render();return;}
+  const sv=saved.has(id);
+  document.querySelectorAll(`.card-save[data-id="${id}"]`).forEach(el=>{
+    el.classList.toggle('saved',sv);
+    el.querySelector('svg').setAttribute('fill',sv?'currentColor':'none');
+  });
+}
+
+/* ═════════════ MODAL ═════════════ */
+function openModal(s){
+  modalId=s.id;
+  const {lbl,cls}=dl(s.deadline), locs=bc(s), sv=saved.has(s.id);
+  $('m-hero').style.background=s.bg; $('m-hero').textContent=s.emoji;
+  $('m-org').textContent=s.org; $('m-title').textContent=s.name; $('m-desc').textContent=s.desc;
+  $('m-apply').href=s.url;
+  $('m-loc').innerHTML=(locs.length?locs:[' Nationwide']).map((p,i)=>`${i>0?'<span style="color:var(--blue-md);padding:0 2px">›</span>':''}<span class="m-loc-tag">${p}</span>`).join('');
+  $('m-reqs').innerHTML=s.req.map(r=>`<li>${r}</li>`).join('');
+  $('m-meta').innerHTML=`
+    <div class="m-mi"><div class="m-ml">Amount</div><div class="m-mv">${s.amount}</div></div>
+    <div class="m-mi"><div class="m-ml">Slots</div><div class="m-mv">${s.slots}</div></div>
+    <div class="m-mi"><div class="m-ml">Deadline</div><div class="m-mv" style="font-size:.73rem;color:var(--${cls==='urgent'?'red':cls==='soon'?'amber':'green'})">${cls==='expired'?'Closed':lbl}</div></div>
+    <div class="m-mi"><div class="m-ml">Level</div><div class="m-mv">${s.level}</div></div>`;
+  setModalSave(sv);
+  $('modal-wrap').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){$('modal-wrap').classList.remove('open');document.body.style.overflow='';modalId=null;}
+function setModalSave(sv){
+  ['m-save-top','m-save-full'].forEach(id=>{
+    const el=$(id); el.classList.toggle('saved',sv);
+    el.querySelector('svg').setAttribute('fill',sv?'currentColor':'none');
+  });
+  $('m-save-top-lbl').textContent=sv?'Saved':'Save';
+  $('m-save-full-lbl').textContent=sv?'Remove from Saved':'Add to Saved';
+}
+$('modal-x').addEventListener('click',closeModal);
+$('modal-wrap').addEventListener('click',e=>{if(e.target===$('modal-wrap'))closeModal();});
+$('m-save-top').addEventListener('click',()=>{if(modalId){toggleSave(modalId);setModalSave(saved.has(modalId));}});
+$('m-save-full').addEventListener('click',()=>{if(modalId){toggleSave(modalId);setModalSave(saved.has(modalId));}});
+
+/* ═════════════ VIEW ═════════════ */
+function setView(v){
+  F.view=v;
+  document.querySelectorAll('.sn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  $('view-title').textContent={browse:'Browse Scholarships',saved:'Saved Scholarships',map:'Map View'}[v]||'Browse Scholarships';
+  const mo=$('map-overlay');
+  if(v==='map'){
+    mo.classList.add('open');
+    const fr=$('map-frame');
+    const send=()=>fr.contentWindow.postMessage({type:'SCHOLAR_DATA',data:DATA.map(s=>({id:s.id,name:s.name,region:s.region,province:s.province,city:s.city}))}, '*');
+    try{if(fr.contentDocument.readyState==='complete')send();else fr.onload=send;}catch(e){fr.onload=send;}
+    const regions=new Set(DATA.filter(s=>s.region).map(s=>s.region));
+    $('map-ct').textContent=regions.size;
+  } else {
+    mo.classList.remove('open'); render();
+  }
+  if(window.innerWidth<=900)closeSidebar2();
+}
+document.querySelectorAll('.sn').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+$('map-close').addEventListener('click',()=>{setView('browse');document.querySelectorAll('.sn').forEach(b=>b.classList.toggle('active',b.dataset.view==='browse'));});
+
+/* ═════════════ SEARCH ═════════════ */
+let st;
+$('gsearch').addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>{F.q=e.target.value;render();},200);});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();$('gsearch').focus();}
+  if(e.key==='Escape'){closeModal();closeFS();}
+});
+
+/* ═════════════ SORT / TAGS ═════════════ */
+document.querySelectorAll('.sort-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.sort-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');F.sort=b.dataset.sort;render();
+}));
+document.querySelectorAll('.tag[data-tag]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tag[data-tag]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');F.type=b.dataset.tag;render();
+}));
+document.querySelectorAll('.tag[data-level]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tag[data-level]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');F.level=b.dataset.level;render();
+}));
+$('reset-btn').addEventListener('click',()=>{
+  $('gsearch').value='';F.q='';F.type='all';F.level='all';F.sort='newest';F.r='';F.p='';F.c='';F.b='';
+  document.querySelectorAll('.sort-btn').forEach(x=>x.classList.toggle('active',x.dataset.sort==='newest'));
+  document.querySelectorAll('.tag[data-tag]').forEach(x=>x.classList.toggle('active',x.dataset.tag==='all'));
+  document.querySelectorAll('.tag[data-level]').forEach(x=>x.classList.toggle('active',x.dataset.level==='all'));
+  $('vc-main').textContent='Nationwide';$('vc-sub').textContent='All 81 provinces';
+  $('loc-pills').innerHTML='';render();
+});
+
+/* ═════════════ LOCATION DROPDOWN ENGINE ═════════════ */
+let PSGC={};
+const sel={r:null,p:null,c:null,b:null};
+const DDS={};
+
+function mkDrop(key,ph){
+  const wrap=$('dw-'+key);
+  const trig=wrap.querySelector('.dt');
+  const txt=wrap.querySelector('.dt-txt');
+  const panel=wrap.querySelector('.dp');
+  const sinp=wrap.querySelector('.dp-s');
+  const opts=wrap.querySelector('.dp-opts');
+  let open=false,off=true,items=[],cur=null;
+
+  function doOpen(){
+    if(off||!items.length)return;
+    open=true;trig.classList.add('open');
+    const r=wrap.getBoundingClientRect(),sp=window.innerHeight-r.bottom;
+    panel.className='dp '+(sp<240?'up':'dn');
+    panel.classList.add('open');
+    if(sinp){sinp.value='';filterOpts('');requestAnimationFrame(()=>sinp.focus());}
+    Object.values(DDS).forEach(d=>{if(d.key!==key)d.close();});
+  }
+  function close(){open=false;trig.classList.remove('open');panel.classList.remove('open');}
+  function filterOpts(q){
+    const lq=q.toLowerCase();let any=false;
+    opts.querySelectorAll('.dp-o').forEach(o=>{const m=o.textContent.toLowerCase().includes(lq);o.classList.toggle('hide',!m);if(m)any=true;});
+    const em=opts.querySelector('.dp-empty');
+    if(!any&&!em){const e=document.createElement('div');e.className='dp-empty';e.textContent='No results';opts.appendChild(e);}
+    if(any&&em)em.remove();
+  }
+  function populate(list){
+    items=list;off=false;trig.classList.remove('off');cur=null;
+    txt.textContent=ph;trig.classList.remove('has-val');
+    opts.innerHTML='';
+    [...list].sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{
+      const o=document.createElement('div');o.className='dp-o';o.textContent=item.name;o.dataset.code=item.code;
+      o.addEventListener('click',()=>{
+        cur=item.code;txt.textContent=item.name;trig.classList.add('has-val');
+        opts.querySelectorAll('.dp-o').forEach(x=>x.classList.remove('sel'));
+        o.classList.add('sel');close();
+        wrap.dispatchEvent(new CustomEvent('lc',{detail:{code:item.code,name:item.name}}));
+      });
+      opts.appendChild(o);
+    });
+  }
+  function reset(){
+    off=true;open=false;cur=null;items=[];
+    trig.classList.add('off');trig.classList.remove('open','has-val');
+    panel.classList.remove('open');txt.textContent=ph;opts.innerHTML='';
+    const dot=$('dot-'+key);if(dot)dot.classList.remove('on');
+  }
+  function setLoad(on){wrap.classList.toggle('loading',on);}
+
+  trig.addEventListener('click',e=>{e.stopPropagation();open?close():doOpen();});
+  if(sinp)sinp.addEventListener('input',e=>filterOpts(e.target.value));
+  document.addEventListener('click',e=>{if(open&&!wrap.contains(e.target))close();});
+
+  return DDS[key]={key,close,populate,reset,setLoad,get val(){return cur;}};
+}
+
+const DDR=mkDrop('region','Select Region');
+const DDP=mkDrop('province','Select Province');
+const DDC=mkDrop('city','Select City / Municipality');
+const DDB=mkDrop('barangay','Select Barangay');
+
+async function loadPSGC(){
+  DDR.setLoad(true);
+  try{
+    const [reg,prov,city,muni,bgy]=await Promise.all([
+      fetch('./assets/psgc/regions.json').then(r=>r.json()),
+      fetch('./assets/psgc/provinces.json').then(r=>r.json()),
+      fetch('./assets/psgc/cities.json').then(r=>r.json()),
+      fetch('./assets/psgc/municipalities.json').then(r=>r.json()),
+      fetch('./assets/psgc/barangays.json').then(r=>r.json()),
+    ]);
+    PSGC={reg,prov,city,muni,bgy};
+    DDR.populate(reg);
+  }catch(e){console.warn('PSGC:',e);}
+  finally{DDR.setLoad(false);}
+}
+
+function refreshSummary(){
+  const sum=$('loc-summary');
+  const parts=[{k:'r',label:'🗺️'},{k:'p',label:'📍'},{k:'c',label:'🏙️'},{k:'b',label:'🏘️'}].filter(m=>sel[m.k]);
+  if(!parts.length){sum.classList.add('hide');return;}
+  sum.classList.remove('hide');
+  sum.innerHTML=parts.map(m=>`<span class="loc-pill">${m.label} ${sel[m.k].name}</span>`).join('');
+}
+
+$('dw-region').addEventListener('lc',({detail})=>{
+  sel.r=detail;sel.p=sel.c=sel.b=null;
+  DDP.reset();DDC.reset();DDB.reset();
+  $('dot-region').classList.add('on');
+  DDP.populate(PSGC.prov.filter(p=>p.regionCode===detail.code));
+  refreshSummary();
+});
+$('dw-province').addEventListener('lc',({detail})=>{
+  sel.p=detail;sel.c=sel.b=null;DDC.reset();DDB.reset();
+  $('dot-province').classList.add('on');
+  DDC.populate([...PSGC.city.filter(c=>c.provinceCode===detail.code),...PSGC.muni.filter(m=>m.provinceCode===detail.code)]);
+  refreshSummary();
+});
+$('dw-city').addEventListener('lc',({detail})=>{
+  sel.c=detail;sel.b=null;DDB.reset();
+  $('dot-city').classList.add('on');
+  DDB.populate(PSGC.bgy.filter(b=>b.cityCode===detail.code||b.municipalityCode===detail.code));
+  refreshSummary();
+});
+$('dw-barangay').addEventListener('lc',({detail})=>{
+  sel.b=detail;$('dot-barangay').classList.add('on');refreshSummary();
+});
+
+/* filter sidebar open/close */
+function openFS(){$('fs').classList.add('open');$('ov').classList.add('on');$('ftrig').classList.add('on');}
+function closeFS(){$('fs').classList.remove('open');$('ov').classList.remove('on');$('ftrig').classList.remove('on');Object.values(DDS).forEach(d=>d.close());}
+$('ftrig').addEventListener('click',openFS);
+$('fs-close').addEventListener('click',closeFS);
+$('ov').addEventListener('click',closeFS);
+
+$('fs-apply').addEventListener('click',()=>{
+  F.r=sel.r?.name||'';F.p=sel.p?.name||'';F.c=sel.c?.name||'';F.b=sel.b?.name||'';
+  const parts=[F.r,F.p,F.c,F.b].filter(Boolean);
+  $('vc-main').textContent=parts.length?parts[parts.length-1]:'Nationwide';
+  $('vc-sub').textContent=parts.length?parts.join(' › '):'All 81 provinces';
+  $('loc-pills').innerHTML=parts.map(p=>`<span class="pill">${p}</span>`).join('');
+  closeFS();render();
+});
+$('fs-clear').addEventListener('click',()=>{
+  Object.keys(sel).forEach(k=>sel[k]=null);
+  DDR.reset();DDP.reset();DDC.reset();DDB.reset();
+  if(PSGC.reg)DDR.populate(PSGC.reg);
+  F.r=F.p=F.c=F.b='';
+  $('vc-main').textContent='Nationwide';$('vc-sub').textContent='All 81 provinces';
+  $('loc-pills').innerHTML='';
+  refreshSummary();render();
+});
+
+/* ═════════════ MOBILE SIDEBAR ═════════════ */
+function openSidebar2(){$('sidebar').classList.add('open');$('dim').classList.add('on');$('hamburger').classList.add('open');}
+function closeSidebar2(){$('sidebar').classList.remove('open');$('dim').classList.remove('on');$('hamburger').classList.remove('open');}
+$('hamburger').addEventListener('click',()=>$('sidebar').classList.contains('open')?closeSidebar2():openSidebar2());
+$('dim').addEventListener('click',closeSidebar2);
+
+/* ═════════════ INIT ═════════════ */
+updateGlance();
+render();
+loadPSGC();
+</script>
 </body>
 </html>

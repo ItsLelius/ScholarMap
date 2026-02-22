@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ScholarMap</title>
     
-    <link rel="icon" type="image/png" href="./assets/ScholarMapTabIcon.png">
+    <link rel="icon" type="image/png" href="./assets/img/ScholarMapTabIcon.png">
     <link rel="stylesheet" href="./css/output.css">
     <link rel="stylesheet" href="./css/customIndex.css">
 
@@ -20,7 +20,7 @@
     <header class="sticky top-0 z-[110] w-full bg-white/95 backdrop-blur-sm shadow-sm px-6 py-3">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2 min-w-[150px]">
-                <img src="./assets/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto">
+                <img src="./assets/img/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto">
                 <span class="text-xl font-black tracking-tight text-black">Scholar<span style="color: #1A43BF;">Map</span></span>
             </div>
 
@@ -50,56 +50,151 @@
     </header>
 
     
-<section id="home" class="relative min-h-screen pt-20 pb-40 px-6 flex flex-col items-center justify-center overflow-hidden">
-    
-    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10 mb-20">
-        
+<section id="home" class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6">
+
+    <!-- ── Layered Background ── -->
+    <div class="absolute inset-0 -z-10">
+        <!-- Base -->
+        <div class="absolute inset-0 bg-[#f0f4ff]"></div>
+        <!-- Grid -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1A43BF0a_0.5px,transparent_0.5px),linear-gradient(to_bottom,#1A43BF0a_0.5px,transparent_0.5px)] bg-[size:44px_44px]"></div>
+        <!-- Radial fade center -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(255,255,255,0.9)_0%,transparent_100%)]"></div>
+        <!-- Color blobs -->
+        <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-200/40 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-indigo-200/50 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[30%] right-[10%] w-[250px] h-[250px] bg-sky-200/30 rounded-full blur-[80px]"></div>
+    </div>
+
+    <!-- ── Floating stat chips (decorative) ── -->
+   
+    <div class="absolute top-[28%] right-[4%] hidden xl:flex items-center gap-2 bg-white/90 backdrop-blur border border-slate-100 shadow-lg shadow-blue-900/8 px-4 py-2.5 rounded-2xl animate-float-medium">
+        <div class="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center">
+            <svg class="w-4 h-4 text-[#1A43BF]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+        </div>
+        <div>
+            <div class="text-xs font-black text-slate-800">81 Provinces</div>
+            <div class="text-[10px] text-slate-400 font-medium">Nationwide coverage</div>
+        </div>
+    </div>
+
+
+
+    <!-- ── Main Content ── -->
+    <div class="max-w-7xl w-full mx-auto grid lg:grid-cols-2 gap-16 items-center pt-16 pb-48 relative z-10">
+
+        <!-- Left: Text -->
         <div class="text-center lg:text-left flex flex-col items-center lg:items-start">
-            <div class="inline-block px-4 py-1.5 mb-6 rounded-full border border-[#1A43BF]/20 bg-[#1A43BF]/5 text-[#1A43BF] text-sm font-bold tracking-wide uppercase">
+
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-[#1A43BF]/20 bg-[#1A43BF]/5 text-[#1A43BF] text-xs font-black tracking-widest uppercase shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#1A43BF] animate-pulse"></span>
                 ✨ AI-Powered Scholarship Search
             </div>
-            <h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-black mb-6 tracking-tighter leading-tight">
-                Your Education, <br><span style="color: #1A43BF;">Mapped.</span>
+
+            <!-- Headline -->
+            <h1 class="text-5xl md:text-6xl lg:text-[4.5rem] font-black text-black mb-6 tracking-tight leading-[1.08]">
+                Your Education,
+                <br>
+                <span class="relative inline-block">
+                    <span style="color: #1A43BF;">Mapped.</span>
+                    <!-- Underline accent -->
+                    <svg class="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 8 Q75 2 150 7 Q225 12 298 5" stroke="#1A43BF" stroke-width="3.5" stroke-linecap="round" opacity="0.35"/>
+                    </svg>
+                </span>
             </h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed max-w-xl">
-                Empowering the next generation of Filipino scholars. Access <span class="font-semibold text-slate-900">verified opportunities</span> across all 81 provinces—powered by AI, <span class="font-semibold text-slate-900">no sign-in required.</span>
+
+            <!-- Subtext -->
+            <p class="text-lg md:text-xl text-slate-500 mb-10 leading-relaxed max-w-lg">
+                Empowering the next generation of Filipino scholars. Access
+                <span class="font-bold text-slate-800">verified opportunities</span> across all 81 provinces —
+                powered by AI, <span class="font-bold text-slate-800">no sign-in required.</span>
             </p>
-            
-            <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                <a href="app.html" style="background-color: #1A43BF;" class="w-full sm:w-auto text-center text-white font-bold py-5 px-14 rounded-full shadow-[0_20px_50px_rgba(26,67,191,0.3)] hover:brightness-110 transition-all transform hover:-translate-y-1 active:scale-95">
-                    Explore the Map
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-12">
+                <a href="app.html" class="group relative w-full sm:w-auto text-center text-white font-black py-4 px-12 rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(26,67,191,0.35)] hover:shadow-[0_20px_60px_rgba(26,67,191,0.45)] transition-all duration-300 hover:-translate-y-0.5 active:scale-95" style="background-color:#1A43BF">
+                    <span class="relative z-10 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        Explore the Map
+                    </span>
+                    <!-- Shine on hover -->
+                    <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-15deg]"></div>
                 </a>
-                <a href="#how-it-works" class="w-full sm:w-auto text-center bg-white/80 backdrop-blur-sm text-slate-700 font-bold py-5 px-10 rounded-full border border-slate-200 hover:bg-white hover:border-[#1A43BF]/30 transition-all transform hover:-translate-y-1 active:scale-95">
+                <a href="#how-it-works" class="w-full sm:w-auto text-center bg-white text-slate-700 font-bold py-4 px-8 rounded-2xl border border-slate-200 hover:border-[#1A43BF]/30 hover:bg-[#f5f7ff] transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-sm">
                     See How it Works
                 </a>
             </div>
-        </div>
 
-        <div class="relative perspective-1000 mt-8 lg:mt-0 w-full max-w-2xl mx-auto group">
-                <div id="hero-tilt" class="relative z-10 transition-transform duration-200 ease-out overflow-hidden shine-wrapper">
-                    <img src="Assets/Hero.png" alt="ScholarMap Dashboard" class="w-full h-auto object-cover">
-                    <div class="shine-effect"></div>
+            <!-- Social proof row -->
+            <div class="flex items-center gap-4">
+                <!-- Avatars -->
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[10px] font-black">JM</div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[10px] font-black">AR</div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-[10px] font-black">KL</div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-[10px] font-black">+</div>
                 </div>
-            <div class="absolute -inset-10 bg-blue-500/10 blur-[80px] rounded-full -z-10"></div>
+                <div>
+                    <div class="flex items-center gap-0.5 mb-0.5">
+                        <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg class="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">Trusted by <span class="font-bold text-slate-700">5,000+</span> Filipino students</p>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="absolute bottom-8 w-full border-t border-b border-slate-200 bg-white/40 backdrop-blur-sm py-6 overflow-hidden">
-        <div class="marquee-mask relative">
-            <div class="marquee-track flex animate-marquee gap-16">
-                <img src="assets/MajorScholarFoundation/9.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/10.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/11.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/12.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/13.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/14.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/15.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/16.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/17.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
-                <img src="assets/MajorScholarFoundation/18.png" class="marquee-logo h-10 md:h-12 w-auto grayscale opacity-60" alt="Foundation">
+        <!-- Right: Hero image -->
+        <div class="relative mt-8 lg:mt-0 w-full max-w-2xl mx-auto group">
+
+            <!-- Glow behind image -->
+            <div class="absolute -inset-6 bg-blue-400/15 blur-[60px] rounded-full -z-10"></div>
+            <div class="absolute -inset-10 bg-indigo-300/10 blur-[100px] rounded-full -z-10"></div>
+
+            <!-- Image with shine -->
+            <div id="hero-tilt" class="relative z-10 transition-transform duration-200 ease-out overflow-hidden shine-wrapper">
+                <img src="Assets/img/Hero.png" alt="ScholarMap Dashboard" class="w-full h-auto object-cover drop-shadow-2xl">
+                <div class="shine-effect"></div>
             </div>
         </div>
     </div>
+
+    <!-- ── Marquee strip ── -->
+    <div class="absolute bottom-0 w-full border-t border-slate-200/80 bg-white/60 backdrop-blur-md py-5 overflow-hidden">
+        <p class="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Partnered with leading foundations</p>
+        <div class="marquee-mask relative">
+            <div class="marquee-track flex animate-marquee gap-16">
+                <img src="assets/img/MajorScholarFoundation/9.png"  class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/10.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/11.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/12.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/13.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/14.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/15.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/16.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/17.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/18.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50 hover:opacity-80 hover:grayscale-0 transition-all duration-300" alt="Foundation">
+                <!-- Duplicate for seamless loop -->
+                <img src="assets/img/MajorScholarFoundation/9.png"  class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/10.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/11.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/12.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/13.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/14.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/15.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/16.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/17.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+                <img src="assets/img/MajorScholarFoundation/18.png" class="marquee-logo h-8 md:h-10 w-auto grayscale opacity-50" alt="Foundation">
+            </div>
+        </div>
+    </div>
+
+
 </section>
 
    <section id="how-it-works" class="py-24 px-6 bg-white relative">
@@ -177,54 +272,198 @@
 </section>
     
 
-    <section id="about" class="py-24 px-6 relative overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-50/50 rounded-full blur-3xl -z-10"></div>
+    <section id="about" class="py-32 px-6 relative overflow-hidden">
 
-    <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-4xl md:text-5xl font-black mb-10 text-black">
-            Our <span style="color: #1A43BF;">Mission</span>
+    <!-- Background blobs -->
+    <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[100px] -z-10 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-indigo-100/50 rounded-full blur-[80px] -z-10 translate-x-1/3 translate-y-1/3"></div>
+
+    <div class="max-w-6xl mx-auto">
+
+        <!-- Label -->
+        <div class="flex justify-center mb-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#1A43BF]/20 bg-[#1A43BF]/5 text-[#1A43BF] text-xs font-bold tracking-widest uppercase">
+                🎯 Who We Are
+            </div>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="text-4xl md:text-6xl font-black text-center text-black mb-4 tracking-tight leading-tight">
+            Built for Every<br><span style="color:#1A43BF">Filipino Scholar.</span>
         </h2>
-        
-        <div class="bg-white/40 backdrop-blur-md border border-white/60 p-10 md:p-16 rounded-[3rem] shadow-xl shadow-blue-900/5">
-            <p class="text-xl md:text-2xl text-slate-700 leading-relaxed mb-8">
-                ScholarMap was founded on a single, powerful belief: <span class="font-semibold text-slate-900">financial constraints should never be the end of a student's dream.</span> 
-            </p>
-            
-            <p class="text-lg text-slate-600 leading-relaxed">
-                In the Philippines, thousands of opportunities remain unclaimed because they are too hard to find. We bridge that gap by <span class="font-semibold text-slate-800">unifying government and private sectors</span> into one seamless map. 
-                Our platform doesn't just list data—it <span class="font-semibold text-[#1A43BF]">empowers the next generation</span> of Filipino scholars by saving them hundreds of hours of research and giving them a <span class="font-semibold text-slate-800">clear path to their future.</span>
-            </p>
+        <p class="text-center text-slate-500 text-lg max-w-xl mx-auto mb-16 leading-relaxed">
+            We believe financial constraints should never be the end of a student's dream.
+        </p>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mt-12 pt-12 border-t border-slate-200/60">
-                <div>
-                    <div class="text-3xl font-black text-[#1A43BF]">100%</div>
-                    <div class="text-sm text-slate-500 font-medium uppercase tracking-wider">Free Access</div>
+        <!-- Main card -->
+        <div class="relative bg-white rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-blue-900/8 overflow-hidden mb-8">
+            
+            <!-- Top blue accent bar -->
+            <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #1A43BF, #6366f1, #1A43BF); background-size: 200%; animation: gradientShift 4s linear infinite;"></div>
+
+            <div class="grid md:grid-cols-2 gap-0">
+                <!-- Left: Mission text -->
+                <div class="p-10 md:p-14 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-100">
+                    <div class="w-14 h-14 bg-[#1A43BF] rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-blue-900/20">
+                        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5v.5m-6 3h6m-3-3v3m-3.055-15.065A9 9 0 1020.945 13H18.945"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-black mb-4 leading-snug">Unifying Every Opportunity Across the Philippines</h3>
+                    <p class="text-slate-600 leading-relaxed text-base mb-6">
+                        Thousands of scholarships go unclaimed every year — not because students don't qualify, but because they simply can't find them. ScholarMap changes that.
+                    </p>
+                    <p class="text-slate-600 leading-relaxed text-base">
+                        We unify government and private scholarship data into a single, living map — so every student, from Batanes to Tawi-Tawi, gets a <span class="font-semibold text-slate-900">clear, equal shot at their future.</span>
+                    </p>
                 </div>
-                <div>
-                    <div class="text-3xl font-black text-[#1A43BF]">24/7</div>
-                    <div class="text-sm text-slate-500 font-medium uppercase tracking-wider">AI Scanning</div>
+
+                <!-- Right: Decorative visual -->
+                <div class="relative bg-gradient-to-br from-[#f0f4ff] to-[#e8eeff] p-10 md:p-14 flex flex-col justify-between min-h-[320px] overflow-hidden">
+                    <!-- Decorative circles -->
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-[#1A43BF]/8 rounded-full"></div>
+                    <div class="absolute -bottom-8 -left-8 w-36 h-36 bg-indigo-300/20 rounded-full"></div>
+
+                    <!-- Quote -->
+                    <div class="relative">
+                        <div class="text-6xl font-black text-[#1A43BF]/15 leading-none mb-2 select-none">"</div>
+                        <p class="text-xl md:text-2xl font-bold text-slate-800 leading-snug -mt-4">
+                            No scholar should miss their chance just because the opportunity was hard to find.
+                        </p>
+                        <div class="mt-6 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#1A43BF] flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-black text-slate-800">ScholarMap Team</div>
+                                <div class="text-xs text-slate-500">Digos City, Philippines</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mini stat row -->
+                    <div class="relative mt-8 grid grid-cols-2 gap-3">
+                        <div class="bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border border-white">
+                            <div class="text-xl font-black text-[#1A43BF]">₱0</div>
+                            <div class="text-xs text-slate-500 font-semibold">Always Free</div>
+                        </div>
+                        <div class="bg-white/80 backdrop-blur rounded-2xl px-4 py-3 border border-white">
+                            <div class="text-xl font-black text-[#1A43BF]">81</div>
+                            <div class="text-xs text-slate-500 font-semibold">Provinces</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="hidden md:block">
-                    <div class="text-3xl font-black text-[#1A43BF]">81</div>
-                    <div class="text-sm text-slate-500 font-medium uppercase tracking-wider">Provinces Covered</div>
-                </div>
+            </div>
+        </div>
+
+        <!-- Bottom 3 stat cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="group bg-white rounded-[1.75rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:shadow-blue-900/8 hover:-translate-y-1 transition-all duration-300">
+                <div class="text-4xl font-black text-[#1A43BF] mb-2">100%</div>
+                <div class="font-bold text-slate-800 mb-1">Free Forever</div>
+                <p class="text-sm text-slate-500 leading-relaxed">No subscriptions, no hidden fees. Every student deserves equal access to opportunity.</p>
+            </div>
+            <div class="group bg-white rounded-[1.75rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:shadow-blue-900/8 hover:-translate-y-1 transition-all duration-300">
+                <div class="text-4xl font-black text-[#1A43BF] mb-2">24/7</div>
+                <div class="font-bold text-slate-800 mb-1">AI-Powered Search</div>
+                <p class="text-sm text-slate-500 leading-relaxed">Our AI never sleeps. New scholarships are discovered and verified around the clock.</p>
+            </div>
+            <div class="group bg-white rounded-[1.75rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:shadow-blue-900/8 hover:-translate-y-1 transition-all duration-300">
+                <div class="text-4xl font-black text-[#1A43BF] mb-2">1,000+</div>
+                <div class="font-bold text-slate-800 mb-1">Verified Listings</div>
+                <p class="text-sm text-slate-500 leading-relaxed">Every scholarship is verified for legitimacy before it ever reaches your screen.</p>
             </div>
         </div>
     </div>
+
+    <style>
+        @keyframes gradientShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+    </style>
 </section>
 
-    <footer class="bg-slate-900 text-white py-16 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 border-b border-slate-800 pb-12">
-            <div class="flex items-center gap-2">
-                <img src="./assets/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto brightness-0 invert">
-                <span class="text-2xl font-black">Scholar<span class="text-blue-500">Map</span></span>
+    <footer class="relative bg-slate-900 text-white overflow-hidden">
+
+    <!-- Background decoration -->
+    <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 w-[300px] h-[300px] bg-indigo-600/10 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_0.5px,transparent_0.5px),linear-gradient(to_bottom,#ffffff06_0.5px,transparent_0.5px)] bg-[size:40px_40px] pointer-events-none"></div>
+
+    <!-- Top section -->
+    <div class="relative max-w-7xl mx-auto px-6 pt-20 pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+
+            <!-- Brand col -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-2 mb-5">
+                    <img src="./assets/img/ScholarMapLogo.png" alt="Logo" class="h-8 w-auto brightness-0 invert">
+                    <span class="text-2xl font-black">Scholar<span class="text-blue-400">Map</span></span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-sm mb-8">
+                    Empowering the next generation of Filipino scholars. Access verified opportunities across all 81 provinces — powered by AI, no sign-in required.
+                </p>
+
+                <!-- Trust pills -->
+                <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Free Forever
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                        No Sign-in Required
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                        AI-Verified Listings
+                    </span>
+                </div>
             </div>
-           
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-5">Navigate</h4>
+                <ul class="space-y-3">
+                    <li><a href="#home" class="text-slate-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group"><span class="w-0 group-hover:w-3 h-px bg-blue-400 transition-all duration-200"></span>Home</a></li>
+                    <li><a href="#how-it-works" class="text-slate-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group"><span class="w-0 group-hover:w-3 h-px bg-blue-400 transition-all duration-200"></span>How it Works</a></li>
+                    <li><a href="#about" class="text-slate-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group"><span class="w-0 group-hover:w-3 h-px bg-blue-400 transition-all duration-200"></span>About</a></li>
+                    <li><a href="app.html" class="text-slate-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group"><span class="w-0 group-hover:w-3 h-px bg-blue-400 transition-all duration-200"></span>Launch App</a></li>
+                </ul>
+            </div>
+
+            <!-- CTA col -->
+            <div>
+                <h4 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-5">Get Started</h4>
+                <p class="text-slate-400 text-sm leading-relaxed mb-5">
+                    Find scholarships in your province today. Takes less than 10 seconds.
+                </p>
+                <a href="app.html" class="inline-flex items-center gap-2 bg-[#1A43BF] hover:brightness-110 text-white text-sm font-bold px-5 py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/30">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Explore the Map
+                </a>
+            </div>
         </div>
-        <div class="max-w-7xl mx-auto mt-12 text-center text-slate-500 text-sm">
-            <p>&copy; 2026 ScholarMap Philippines. All rights reserved.</p>
+    </div>
+
+    <!-- Divider -->
+    <div class="relative max-w-7xl mx-auto px-6">
+        <div class="h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="relative max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-slate-500 text-xs">
+            © 2026 ScholarMap Philippines. All rights reserved. Made with ❤️ for Filipino scholars.
+        </p>
+        <div class="flex items-center gap-6">
+            <a href="#" class="text-slate-600 hover:text-slate-400 transition-colors text-xs font-medium">Privacy Policy</a>
+            <a href="#" class="text-slate-600 hover:text-slate-400 transition-colors text-xs font-medium">Terms of Use</a>
+            <a href="#" class="text-slate-600 hover:text-slate-400 transition-colors text-xs font-medium">Contact</a>
         </div>
-    </footer>
+    </div>
+</footer>
 
     <script src="./js/navbar.js"></script>
     <script src="./js/imageTilt.js"></script>

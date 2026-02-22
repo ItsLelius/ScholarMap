@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScholarMap | Philippines Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap">
+    <style>
+        :root {
+            --blue: #1A43BF;
+            --blue-lt: #EEF2FF;
+            --blue-md: #C7D2FE;
+            --dark: #0f172a;
+            --mid: #475569;
+            --soft: #94a3b8;
+            --surface: #ffffff;
+            --bg: #f7f9ff;
+            --border: #e8edf5;
+        }
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+        html,body { height:100%; font-family:'Plus Jakarta Sans',system-ui,sans-serif; background:var(--bg); overflow:hidden; }
+
+        /* ── Layout ── */
+        .map-shell { display:flex; height:100%; }
+
+        /* ── Region list sidebar ── */
+        .region-list {
+            width:240px; flex-shrink:0;
+            background:var(--surface); border-right:1px solid var(--border);
+            display:flex; flex-direction:column; overflow:hidden;
+        }
+        .rl-header {
+            padding:16px; border-bottom:1px solid var(--border); flex-shrink:0;
+        }
+        .rl-header h2 { font-size:0.9rem; font-weight:900; color:var(--dark); }
+        .rl-header p  { font-size:0.68rem; color:var(--soft); margin-top:2px; }
+        .rl-body { flex:1; overflow-y:auto; padding:8px; }
+
+        .region-item {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:8px 10px; border-radius:10px; cursor:pointer;
+            transition:background 0.15s; margin-bottom:2px;
+        }
+        .region-item:hover { background:var(--bg); }
+        .region-item.active { background:var(--blue-lt); }
+        .ri-name {
+            font-size:0.75rem; font-weight:700; color:var(--dark);
+            display:block; line-height:1.3;
+        }
+        .ri-count {
+            font-size:0.65rem; font-weight:900; background:var(--blue);
+            color:white; padding:2px 6px; border-radius:99px; flex-shrink:0;
+        }
+        .ri-count.zero { background:var(--border); color:var(--soft); }
+
+        /* ── Map area ── */
+        .map-area { flex:1; position:relative; overflow:hidden; }
+
+        /* SVG map container */
+        .map-svg-wrap {
+            width:100%; height:100%;
+            display:flex; align-items:center; justify-content:center;
+            padding:20px; cursor:grab;
+        }
+        .map-svg-wrap:active { cursor:grabbing; }
+
+        #ph-map-svg {
+            width:auto; height:100%; max-height:100%;
+            filter:drop-shadow(0 4px 20px rgba(26,67,191,0.1));
+        }
+
+        /* Region paths base */
+        .ph-region {
+            fill:#dde4f5; stroke:white; stroke-width:1;
+            transition:fill 0.2s; cursor:pointer;
+        }
+        .ph-region:hover { fill:var(--blue-md); }
+        .ph-region.has-scholars { fill:#c7d5f8; }
+        .ph-region.active { fill:var(--blue); }
+
+        /* ── Scholarship pin tooltip ── */
+        .map-tooltip {
+            position:absolute; z-index:100;
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:14px; padding:14px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.14);
+            min-width:220px; max-width:260px;
+            pointer-events:none;
+            opacity:0; transition:opacity 0.2s;
+        }
+        .map-tooltip.visible { opacity:1; }
+        .mt-region { font-size:0.65rem; font-weight:800; color:var(--soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+        .mt-count { font-size:1.4rem; font-weight:900; color:var(--blue); letter-spacing:-0.03em; }
+        .mt-sub { font-size:0.72rem; color:var(--mid); margin-bottom:8px; }
+        .mt-names { display:flex; flex-direction:column; gap:3px; }
+        .mt-name { font-size:0.72rem; color:var(--dark); font-weight:600; display:flex; align-items:flex-start; gap:5px; }
+        .mt-name::before { content:'•'; color:var(--blue); flex-shrink:0; }
+
+        /* ── Legend ── */
+        .map-legend {
+            position:absolute; bottom:16px; right:16px;
+            background:rgba(255,255,255,0.95); backdrop-filter:blur(8px);
+            border:1px solid var(--border); border-radius:12px;
+            padding:12px 16px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.08);
+        }
+        .ml-title { font-size:0.65rem; font-weight:800; color:var(--soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+        .ml-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:0.72rem; color:var(--mid); font-weight:600; }
+        .ml-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+
+        /* ── Top bar ── */
+        .map-topbar {
+            position:absolute; top:0; left:0; right:0; z-index:50;
+            background:rgba(255,255,255,0.95); backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border);
+            padding:10px 20px;
+            display:flex; align-items:center; gap:12px;
+        }
+        .map-back-btn {
+            display:flex; align-items:center; gap:6px;
+            font-size:0.78rem; font-weight:700; color:var(--mid);
+            padding:6px 12px; border-radius:8px; border:1.5px solid var(--border);
+            background:none; cursor:pointer; font-family:inherit;
+            transition:all 0.15s;
+        }
+        .map-back-btn:hover { color:var(--blue); border-color:var(--blue-md); background:var(--blue-lt); }
+        .map-topbar-title { font-size:0.85rem; font-weight:800; color:var(--dark); }
+        .map-topbar-sub { font-size:0.72rem; color:var(--soft); margin-left:auto; }
+        .map-topbar-count { font-weight:800; color:var(--blue); }
+
+        @media (max-width:600px) {
+            .region-list { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="map-shell">
+
+    <!-- Region sidebar list -->
+    <div class="region-list" id="region-list">
+        <div class="rl-header">
+            <h2>Regions</h2>
+            <p>Tap a region to filter</p>
+        </div>
+        <div class="rl-body" id="region-list-body">
+            <div style="padding:20px;text-align:center;color:var(--soft);font-size:0.8rem;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Map area -->
+    <div class="map-area" id="map-area">
+
+        <!-- Top bar inside map (for when used standalone) -->
+        <div class="map-topbar">
+            <button class="map-back-btn" onclick="window.parent.postMessage({type:'CLOSE_MAP'},'*')">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                Back
+            </button>
+            <span class="map-topbar-title">🗺️ Philippine Scholarship Map</span>
+            <span class="map-topbar-sub">
+                <span class="map-topbar-count" id="map-top-count">0</span> scholarship locations
+            </span>
+        </div>
+
+        <!-- SVG Map of the Philippines -->
+        <div class="map-svg-wrap" id="map-svg-wrap" style="padding-top:55px">
+            <svg id="ph-map-svg" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+                <!-- Simplified Philippines island groups as clickable regions -->
+                <!-- LUZON -->
+                <g class="ph-region-group" data-region="NCR" title="NCR">
+                    <ellipse cx="198" cy="290" rx="12" ry="10" class="ph-region" data-region="NCR"/>
+                    <text x="198" y="290" text-anchor="middle" dominant-baseline="middle" fill="#1A43BF" font-size="5" font-weight="800" pointer-events="none">NCR</text>
+                </g>
+                <!-- Ilocos Region -->
+                <path d="M150,80 L160,70 L170,65 L175,80 L170,110 L155,130 L145,120 L140,100 Z"
+                    class="ph-region" data-region="Ilocos Region"/>
+                <!-- CAR -->
+                <path d="M175,80 L195,75 L210,85 L205,110 L190,120 L175,115 L170,100 Z"
+                    class="ph-region" data-region="CAR"/>
+                <!-- Region II (Cagayan Valley) -->
+                <path d="M210,60 L235,50 L250,60 L245,100 L230,115 L215,110 L205,90 Z"
+                    class="ph-region" data-region="Cagayan Valley"/>
+                <!-- Region III (Central Luzon) -->
+                <path d="M155,130 L190,120 L210,130 L215,155 L200,165 L180,168 L160,160 L148,148 Z"
+                    class="ph-region" data-region="Central Luzon"/>
+                <!-- Region IV-A (CALABARZON) -->
+                <path d="M160,160 L200,165 L215,175 L210,200 L195,210 L175,208 L158,198 L152,178 Z"
+                    class="ph-region" data-region="CALABARZON"/>
+                <!-- MIMAROPA -->
+                <path d="M140,200 L155,195 L162,210 L158,235 L143,240 L132,228 L128,210 Z"
+                    class="ph-region" data-region="MIMAROPA"/>
+                <!-- Region V (Bicol) -->
+                <path d="M215,200 L235,195 L248,210 L250,240 L238,260 L220,265 L208,252 L205,228 Z"
+                    class="ph-region" data-region="Bicol Region"/>
+                <!-- NCR special detailed -->
+                <ellipse cx="195" cy="282" rx="14" ry="12" class="ph-region" data-region="NCR"/>
+
+                <!-- VISAYAS -->
+                <!-- Region VI (Western Visayas) -->
+                <path d="M155,310 L175,300 L190,308 L195,330 L180,345 L160,342 L148,328 Z"
+                    class="ph-region" data-region="Western Visayas"/>
+                <!-- Region VII (Central Visayas) -->
+                <path d="M205,315 L228,308 L242,320 L240,345 L225,355 L208,350 L198,335 Z"
+                    class="ph-region" data-region="Central Visayas"/>
+                <!-- Region VIII (Eastern Visayas) -->
+                <path d="M248,290 L268,285 L278,300 L272,330 L255,340 L242,325 Z"
+                    class="ph-region" data-region="Eastern Visayas"/>
+
+                <!-- MINDANAO -->
+                <!-- Region IX (Zamboanga) -->
+                <path d="M145,390 L168,380 L178,392 L175,420 L158,432 L140,425 L132,408 Z"
+                    class="ph-region" data-region="Zamboanga Peninsula"/>
+                <!-- Region X (Northern Mindanao) -->
+                <path d="M185,380 L215,372 L232,382 L228,412 L210,425 L190,420 L178,405 Z"
+                    class="ph-region" data-region="Northern Mindanao"/>
+                <!-- Region XI (Davao Region) -->
+                <path d="M225,410 L258,400 L272,415 L268,450 L250,465 L228,460 L216,442 Z"
+                    class="ph-region" data-region="Davao Region"/>
+                <!-- Region XII (SOCCSKSARGEN) -->
+                <path d="M185,430 L218,425 L225,440 L220,468 L202,478 L182,472 L172,452 Z"
+                    class="ph-region" data-region="SOCCSKSARGEN"/>
+                <!-- Region XIII (Caraga) -->
+                <path d="M265,375 L285,368 L295,382 L290,415 L272,425 L258,415 L252,395 Z"
+                    class="ph-region" data-region="Caraga"/>
+                <!-- BARMM -->
+                <path d="M148,435 L168,428 L180,440 L175,465 L158,475 L140,468 L132,450 Z"
+                    class="ph-region" data-region="BARMM"/>
+
+                <!-- Sea labels -->
+                <text x="90" y="200" fill="#94a3b8" font-size="8" font-weight="700" opacity="0.5" transform="rotate(-30,90,200)">South China Sea</text>
+                <text x="310" y="300" fill="#94a3b8" font-size="8" font-weight="700" opacity="0.5" transform="rotate(15,310,300)">Philippine Sea</text>
+                <text x="90" y="420" fill="#94a3b8" font-size="8" font-weight="700" opacity="0.5" transform="rotate(-15,90,420)">Sulu Sea</text>
+                <text x="275" y="440" fill="#94a3b8" font-size="8" font-weight="700" opacity="0.5" transform="rotate(10,275,440)">Celebes Sea</text>
+
+                <!-- Group labels -->
+                <text x="195" y="57" text-anchor="middle" fill="#64748b" font-size="9" font-weight="800">LUZON</text>
+                <text x="210" y="305" text-anchor="middle" fill="#64748b" font-size="9" font-weight="800">VISAYAS</text>
+                <text x="215" y="375" text-anchor="middle" fill="#64748b" font-size="9" font-weight="800">MINDANAO</text>
+            </svg>
+        </div>
+
+        <!-- Tooltip -->
+        <div class="map-tooltip" id="map-tooltip">
+            <div class="mt-region" id="tt-region"></div>
+            <div class="mt-count" id="tt-count"></div>
+            <div class="mt-sub" id="tt-sub"></div>
+            <div class="mt-names" id="tt-names"></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="map-legend">
+            <div class="ml-title">Legend</div>
+            <div class="ml-row"><div class="ml-dot" style="background:#c7d5f8"></div>Has scholarships</div>
+            <div class="ml-row"><div class="ml-dot" style="background:#1A43BF"></div>Selected region</div>
+            <div class="ml-row"><div class="ml-dot" style="background:#dde4f5"></div>No data yet</div>
+        </div>
+    </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── Scholarship data received from parent ── */
+let scholarData = [];
+
+/* ── PSGC-to-SVG region mapping ── */
+const REGION_MAP = {
+    'NCR':                  'NCR',
+    'CAR':                  'CAR',
+    'Ilocos Region':        'Ilocos Region',
+    'Cagayan Valley':       'Cagayan Valley',
+    'Central Luzon':        'Central Luzon',
+    'CALABARZON':           'CALABARZON',
+    'MIMAROPA':             'MIMAROPA',
+    'Bicol Region':         'Bicol Region',
+    'Western Visayas':      'Western Visayas',
+    'Central Visayas':      'Central Visayas',
+    'Eastern Visayas':      'Eastern Visayas',
+    'Zamboanga Peninsula':  'Zamboanga Peninsula',
+    'Northern Mindanao':    'Northern Mindanao',
+    'Davao Region':         'Davao Region',
+    'SOCCSKSARGEN':         'SOCCSKSARGEN',
+    'Caraga':               'Caraga',
+    'BARMM':                'BARMM',
+};
+
+const ALL_REGIONS = Object.keys(REGION_MAP);
+
+let activeRegion = null;
+const tooltip    = document.getElementById('map-tooltip');
+
+/* ── Build region counts ── */
+function buildRegionCounts(data) {
+    const counts = {};
+    const names  = {};
+    ALL_REGIONS.forEach(r => { counts[r] = 0; names[r] = []; });
+
+    data.forEach(s => {
+        const r = s.region;
+        if (r && counts[r] !== undefined) {
+            counts[r]++;
+            if (names[r].length < 5) names[r].push(s.name);
+        } else if (!r) {
+            /* Nationwide — count in all */
+            ALL_REGIONS.forEach(k => {
+                counts[k]++;
+                if (names[k].length < 5 && !names[k].includes(s.name)) names[k].push(s.name);
+            });
+        }
+    });
+    return { counts, names };
+}
+
+/* ── Paint map ── */
+function paintMap(counts) {
+    document.querySelectorAll('.ph-region').forEach(el => {
+        const r = el.dataset.region;
+        const n = counts[r] || 0;
+        el.classList.toggle('has-scholars', n > 0);
+    });
+}
+
+/* ── Build sidebar region list ── */
+function buildRegionList(counts, names) {
+    const body = document.getElementById('region-list-body');
+    body.innerHTML = '';
+
+    /* All option */
+    const allBtn = document.createElement('div');
+    allBtn.className = 'region-item active';
+    allBtn.innerHTML = `<span class="ri-name">🗺️ All Regions</span><span class="ri-count">${scholarData.length}</span>`;
+    allBtn.addEventListener('click', () => {
+        selectRegion(null, counts, names);
+        document.querySelectorAll('.region-item').forEach(i => i.classList.remove('active'));
+        allBtn.classList.add('active');
+    });
+    body.appendChild(allBtn);
+
+    ALL_REGIONS.forEach(r => {
+        const n    = counts[r] || 0;
+        const item = document.createElement('div');
+        item.className   = 'region-item';
+        item.dataset.region = r;
+        item.innerHTML   = `
+            <span class="ri-name">${r}</span>
+            <span class="ri-count ${n === 0 ? 'zero' : ''}">${n}</span>
+        `;
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.region-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            selectRegion(r, counts, names);
+        });
+        body.appendChild(item);
+    });
+}
+
+/* ── Select region ── */
+function selectRegion(region, counts, names) {
+    activeRegion = region;
+
+    /* Highlight SVG */
+    document.querySelectorAll('.ph-region').forEach(el => {
+        el.classList.toggle('active', region !== null && el.dataset.region === region);
+    });
+
+    /* Send filter message to parent */
+    window.parent.postMessage({ type: 'MAP_REGION_SELECT', region }, '*');
+}
+
+/* ── SVG hover tooltips ── */
+function attachSVGEvents(counts, names) {
+    const mapArea = document.getElementById('map-area');
+
+    document.querySelectorAll('.ph-region').forEach(el => {
+        el.addEventListener('mouseenter', (e) => {
+            const r = el.dataset.region;
+            const n = counts[r] || 0;
+            if (n === 0) return;
+
+            document.getElementById('tt-region').textContent = r;
+            document.getElementById('tt-count').textContent  = n;
+            document.getElementById('tt-sub').textContent    = `scholarship${n !== 1 ? 's' : ''} available`;
+            document.getElementById('tt-names').innerHTML    = (names[r] || []).slice(0, 4)
+                .map(nm => `<div class="mt-name">${nm}</div>`).join('');
+
+            tooltip.classList.add('visible');
+        });
+
+        el.addEventListener('mousemove', (e) => {
+            const rect  = mapArea.getBoundingClientRect();
+            let   left  = e.clientX - rect.left + 14;
+            let   top   = e.clientY - rect.top  + 14;
+            if (left + 270 > rect.width)  left  = e.clientX - rect.left - 280;
+            if (top  + 160 > rect.height) top   = e.clientY - rect.top  - 160;
+            tooltip.style.left = left + 'px';
+            tooltip.style.top  = top  + 'px';
+        });
+
+        el.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
+
+        el.addEventListener('click', () => {
+            const r = el.dataset.region;
+            document.querySelectorAll('.region-item').forEach(i => {
+                i.classList.toggle('active', i.dataset.region === r);
+            });
+            selectRegion(r, counts, names);
+        });
+    });
+}
+
+/* ── Init map with data ── */
+function initMap(data) {
+    scholarData = data;
+    const { counts, names } = buildRegionCounts(data);
+
+    document.getElementById('map-top-count').textContent =
+        data.filter(s => s.region).length;
+
+    paintMap(counts);
+    buildRegionList(counts, names);
+    attachSVGEvents(counts, names);
+}
+
+/* ── Receive data from parent (app.js) ── */
+window.addEventListener('message', e => {
+    if (e.data?.type === 'SCHOLAR_DATA') {
+        initMap(e.data.data);
+    }
+    if (e.data?.type === 'CLOSE_MAP') {
+        /* handled by parent */
+    }
+});
+
+/* ── Standalone: load scholarships.js data directly ── */
+if (window.SCHOLARSHIPS) {
+    initMap(window.SCHOLARSHIPS.map(s => ({
+        region: s.region, province: s.province, city: s.city, name: s.name, id: s.id
+    })));
+} else {
+    /* Try loading after a tick (if embedded) */
+    setTimeout(() => {
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'MAP_READY' }, '*');
+        }
+    }, 200);
+}
+</script>
+</body>
+</html>

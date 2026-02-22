@@ -1,0 +1,199 @@
+/* ── Filter Sidebar ── */
+#filter-sidebar {
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#filter-sidebar.open {
+    transform: translateX(0) !important;
+}
+
+/* ── Sidebar Overlay ── */
+#sidebar-overlay {
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+#sidebar-overlay.show {
+    opacity: 1;
+}
+
+/* ── Custom Dropdown Trigger ── */
+.loc-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    user-select: none;
+    position: relative;
+}
+.loc-trigger.has-value {
+    color: #1e293b;
+    background: #fff;
+    border-color: #c7d2fe;
+}
+.loc-trigger.is-open {
+    border-color: #1A43BF;
+    box-shadow: 0 0 0 3px rgba(26, 67, 191, 0.1);
+    background: #fff;
+}
+.loc-trigger.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.loc-trigger-text {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.loc-trigger-icon {
+    flex-shrink: 0;
+    margin-left: 8px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #94a3b8;
+}
+.loc-trigger.is-open .loc-trigger-icon {
+    transform: rotate(180deg);
+    color: #1A43BF;
+}
+
+/* ── Dropdown Panel ── */
+.loc-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    max-height: 260px;
+}
+.loc-panel.is-open {
+    display: flex;
+    animation: panelIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.loc-panel.opens-up {
+    bottom: calc(100% + 8px);
+    top: auto;
+}
+.loc-panel.opens-down {
+    top: calc(100% + 8px);
+    bottom: auto;
+}
+
+@keyframes panelIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* ── Search inside panel ── */
+.loc-search-wrap {
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+.loc-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #1e293b;
+    background: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+.loc-search:focus {
+    border-color: #1A43BF;
+    background: #fff;
+}
+
+/* ── Options list ── */
+.loc-options {
+    overflow-y: auto;
+    flex: 1;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+.loc-options::-webkit-scrollbar { width: 4px; }
+.loc-options::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+.loc-option {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #334155;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.loc-option:hover {
+    background: #EEF2FF;
+    color: #1A43BF;
+}
+.loc-option.is-selected {
+    background: #1A43BF;
+    color: #fff;
+    font-weight: 700;
+}
+.loc-option.is-hidden {
+    display: none;
+}
+.loc-empty {
+    padding: 16px 12px;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
+/* ── Spinner ── */
+.loc-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #e2e8f0;
+    border-top-color: #1A43BF;
+    border-radius: 50%;
+    animation: loc-spin 0.6s linear infinite;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+.loc-loading .loc-spinner { display: block; }
+.loc-loading .loc-trigger { pointer-events: none; opacity: 0.6; }
+@keyframes loc-spin { to { transform: rotate(360deg); } }
+
+/* ── Selected Pills ── */
+.loc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #EEF2FF;
+    color: #1A43BF;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid #C7D2FE;
+    animation: loc-pop 0.18s ease;
+}
+@keyframes loc-pop {
+    from { transform: scale(0.88); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+}
