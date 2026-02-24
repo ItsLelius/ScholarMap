@@ -287,6 +287,23 @@ const SCHOLARSHIPS = [
     applyUrl:'',
   },
 
+   {
+    id: 'owwa-odsp',
+    name: 'OWWA OFW Dependents Scholarship (ODSP)',
+    org: 'Overseas Workers Welfare Administration',
+    type: 'Government', level: 'College',
+    img: '', emoji: '🌏', bg: 'linear-gradient(135deg,#f0f9ff,#bae6fd)',
+    region: '', province: '', city: '',
+    amount: '₱20,000/yr', slots: 'Open', deadline: '2025-08-31',
+    req: [
+      'Child or dependent of an active OWWA member',
+      'OFW earns USD 600/mo or less (low-income category)',
+      'GWA 80% or higher',
+      'Enrolled in a CHED-accredited college',
+    ],
+    desc: 'The OWWA ODSP is a needs-based college scholarship for dependents of lower-income OFW members. It complements the EDSP by serving a broader pool of applicants, offering annual financial aid to reduce the burden on families while their breadwinner is abroad.',
+    applyUrl: 'https://scholarship.owwa.gov.ph/',
+  },
 
 
 ];
