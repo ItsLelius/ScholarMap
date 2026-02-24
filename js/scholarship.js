@@ -287,5 +287,7 @@ const SCHOLARSHIPS = [
     applyUrl:'',
   },
 
+
+
 ];
 /* ─── end of SCHOLARSHIPS array ─── */
