@@ -7,12 +7,23 @@
 <style>
 /* ── RESET ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7f9ff;color:#0f172a;-webkit-font-smoothing:antialiased}
-button{border:none;background:none;font-family:inherit;cursor:pointer}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7f9ff;color:#0f172a;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+/* kill typing cursor, text selection, tap highlight on all non-input elements */
+*{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;
+  user-select:none;
+  caret-color:transparent;
+}
+input,textarea,select{
+  -webkit-user-select:text;
+  user-select:text;
+  caret-color:auto;
+}
+button{border:none;background:none;font-family:inherit;cursor:pointer;outline:none}
 a{text-decoration:none;color:inherit;cursor:pointer}
-input{font-family:inherit}
+input,textarea,select{font-family:inherit}
 img{-webkit-user-drag:none}
-*{-webkit-tap-highlight-color:transparent}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#1A43BF}
@@ -723,8 +734,15 @@ function setView(v){
   if(v==='map'){
     mo.classList.add('open');
     const fr=$('map-frame');
-    const send=()=>fr.contentWindow.postMessage({type:'SCHOLAR_DATA',data:DATA.map(s=>({id:s.id,name:s.name,region:s.region,province:s.province,city:s.city}))}, '*');
-    try{if(fr.contentDocument.readyState==='complete')send();else fr.onload=send;}catch(e){fr.onload=send;}
+    const send=()=>{
+      try{ fr.contentWindow.postMessage({type:'SCHOLAR_DATA',data:DATA},'*'); }catch(e){}
+    };
+    // Send after load + small delay to ensure map JS has initialized
+    fr.onload=()=>setTimeout(send,100);
+    // If already loaded (cached), send immediately after tick
+    try{
+      if(fr.contentDocument && fr.contentDocument.readyState==='complete') setTimeout(send,100);
+    }catch(e){}
     const regions=new Set(DATA.filter(s=>s.region).map(s=>s.region));
     $('map-ct').textContent=regions.size;
   } else {
@@ -913,6 +931,11 @@ $('dim').addEventListener('click',closeSidebar2);
 updateGlance();
 render();
 loadPSGC();
+
+/* Auto-open map if ?view=map in URL (called from index.html "Explore the Map") */
+if(new URLSearchParams(location.search).get('view')==='map'){
+  setView('map');
+}
 </script>
 </body>
 </html>
